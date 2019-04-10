@@ -2,6 +2,9 @@
 
 (require db)
 
+; load configuration file
+(require (file "config.rkt"))
+
 ; set up a condensed prompt for getting information
 (define (getinput prompt)
   (write-string prompt)
@@ -10,12 +13,12 @@
 
 ; make sure we can use the sqlite3 connection
 (if sqlite3-available?
-    "Adding new proposal to the database."
+    (write-string "Adding new proposal to the database.")
     (error "Sqlite3 library not available."))
 
 ; open the database file
 (define conn (sqlite3-connect #:database
-              "/home/george/work/proposals/proposals.sqlite"))
+              dbloc))
 
 ; user inputs proposal data
 (define proptype (getinput "Proposal type"))
