@@ -17,8 +17,7 @@
     (error "Sqlite3 library not available."))
 
 ; open the database file
-(define conn (sqlite3-connect #:database
-              dbloc))
+(define conn (sqlite3-connect #:database dbloc))
 
 ; user inputs proposal data
 (define proptype (getinput "Proposal type"))
