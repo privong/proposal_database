@@ -17,6 +17,19 @@
   (write-string ": ")
   (read-line))
 
+; take an input result from the SQL search and write it out nicely
+(define (printentry entry)
+  (write-string (string-append
+                 (number->string (vector-ref entry 0))
+                 ": "
+                 (vector-ref entry 1)
+                 "("
+                 (vector-ref entry 2)
+                 ") "
+                 (vector-ref entry 3)
+                 ".\n"))
+  )
+
 (define (addnew)
   (write-string "Adding new proposal to database.\n")
   ; user inputs proposal data
@@ -38,7 +51,14 @@
 
 ; update an entry
 (define (update)
-  (write-string "Updating entry")
+  (write-string "Updating proposals")
+  ; retrieve all proposals whose status is still listed as "submitted"
+  (define unfinished (query-rows conn "SELECT ID,telescope,solicitation,title FROM proposals WHERE status='submitted'"))
+  (write-string (string-append (make-string (length unfinished)) " pending proposals found:\n"))
+  (map printentry unfinished)
+  (write-string "Please enter a proposal number to edit (enter 0 or nothing to exit): ")
+  (define upID (read-line))
+
   )
 
 ; make sure we can use the sqlite3 connection
