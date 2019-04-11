@@ -1,5 +1,6 @@
-#lang racket
+#lang racket/base
 
+(require racket/cmdline)
 (require racket/date)
 (require db)
 
@@ -83,6 +84,7 @@
   (write-string "Please enter a proposal number to edit (enter 0 or nothing to exit): ")
   (define upID (read-line))
   (cond
+    [(eq? (string->number upID) 0) (exit)]
     [(string->number upID) (update (string->number upID))]
     [else (exit)])
   )
