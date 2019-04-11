@@ -9,6 +9,7 @@
 ; load configuration file
 (require (file "config.rkt"))
 
+; give us the date in YYYY-MM-DD format
 (date-display-format 'iso-8601)
 
 ; set up command line arguments
@@ -47,6 +48,7 @@
                  ".\n"))
   )
 
+; add a new proposal to the database
 (define (addnew)
   (write-string "Adding new proposal to database.\n")
   ; user inputs proposal data
@@ -59,13 +61,14 @@
   (define coi (getinput "CoIs"))
   ; assume all these proposals are submitted, don't ask the user
   (define status "submitted")
-  (define submitdate (getinput "Submit date"))
+  (define submitdate (getinput "Submit date (YYYY-MM-DD)"))
   (define oID (getinput "Organization's proposal ID"))
 
   ; do the INSERT into the Sqlite database
   (query-exec conn "INSERT INTO proposals (type, organization, solicitation, telescope, PI, title, CoI, status, submitdate, orgpropID) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
               proptype org solic tele pi title coi status submitdate oID))
 
+; update an entry with new status (accepted, rejected, etc.)
 (define (update ID)
   (write-string (string-append "Updating entry " (number->string ID) "\n"))
   (define entry (query-row conn "SELECT * FROM proposals WHERE ID=?" ID))
@@ -93,6 +96,7 @@
   ; retrieve all proposals whose status is still listed as "submitted"
   (define unfinished (query-rows conn "SELECT ID,telescope,solicitation,title FROM proposals WHERE status='submitted'"))
   (write-string (string-append (make-string (length unfinished)) " pending proposals found:\n"))
+  ; print all the unresolved proposals to the screen
   (map printentry unfinished)
   (write-string "Please enter a proposal number to edit (enter 0 or nothing to exit): ")
   (define upID (read-line))
