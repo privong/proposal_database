@@ -1,9 +1,12 @@
 #lang racket
 
+(require racket/date)
 (require db)
 
 ; load configuration file
 (require (file "config.rkt"))
+
+(date-display-format 'iso-8601)
 
 ; set up command line arguments
 (define mode (command-line
@@ -49,8 +52,29 @@
   (query-exec conn "INSERT INTO proposals (type, organization, solicitation, telescope, PI, title, CoI, status, submitdate, orgpropID) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
               proptype org solic tele pi title coi status submitdate oID))
 
-; update an entry
-(define (update)
+(define (update ID)
+  (write-string (string-append "Updating entry " (number->string ID) "\n"))
+  (define entry (query-row conn "SELECT * FROM proposals WHERE ID=?" ID))
+  (write-string (string-append "Current status is: "
+                               (vector-ref entry 9)
+                               " ("
+                               (vector-ref entry 10)
+                               ")\n"))
+  (write-string "Please enter new status: ")
+  (define newstatus (read-line))
+  ;(write-string "Please enter date of updated status (leave blank to use current date): ")
+  ;(define resdate (read-line))
+  (define resdate (date->string (seconds->date (current-seconds))))
+  ; now update that entry
+  (query-exec conn "UPDATE proposals SET status=?, resultdate=? WHERE ID=?"
+              newstatus
+              resdate
+              ID)
+  (write-string "Entry updated.\n")
+  )
+
+; find proposals waiting for updates
+(define (findpending)
   (write-string "Updating proposals")
   ; retrieve all proposals whose status is still listed as "submitted"
   (define unfinished (query-rows conn "SELECT ID,telescope,solicitation,title FROM proposals WHERE status='submitted'"))
@@ -58,7 +82,9 @@
   (map printentry unfinished)
   (write-string "Please enter a proposal number to edit (enter 0 or nothing to exit): ")
   (define upID (read-line))
-
+  (cond
+    [(string->number upID) (update (string->number upID))]
+    [else (exit)])
   )
 
 ; make sure we can use the sqlite3 connection
@@ -71,7 +97,7 @@
 ; determine which mode we're in
 (cond
   [(regexp-match "add" mode) (addnew)]
-  [(regexp-match "update" mode) (update)])
+  [(regexp-match "update" mode) (findpending)])
 
 ; close the databse
 (disconnect conn)
