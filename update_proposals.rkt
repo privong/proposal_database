@@ -4,6 +4,8 @@
 (require racket/date)
 (require db)
 
+(define progname "update_proposals.rkt")
+
 ; load configuration file
 (require (file "config.rkt"))
 
@@ -14,6 +16,17 @@
               #:program "update_proposals"
               #:args (updatetype) ; (add, update)
               updatetype))
+
+; print some help
+(define (printhelp)
+  (write-string (string-append "Usage: "
+                               progname " MODE\n\n"))
+
+  (write-string "Where MODE is one of:\n")
+  (write-string " add\t\t - add new proposal to database.\n")
+  (write-string " update\t\t - update a a proposal with results.\n")
+  (write-string " help\t\t - Show this help message.\n")
+  (write-string "\nCopyright 2019 George C. Privon\n"))
 
 ; set up a condensed prompt for getting information
 (define (getinput prompt)
@@ -98,6 +111,7 @@
 
 ; determine which mode we're in
 (cond
+  [(regexp-match "help" mode) (printhelp)]
   [(regexp-match "add" mode) (addnew)]
   [(regexp-match "update" mode) (findpending)])
 
