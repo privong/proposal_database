@@ -1,5 +1,8 @@
 #lang racket/base
 
+;; This program creates a sqlite3 database and then creates an empty table
+;; for information on proposals.
+
 (require db)
 
 ; create the database and create the table

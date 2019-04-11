@@ -1,5 +1,7 @@
 #lang racket/base
 
+;; This program updates an entry in a proposals database.
+
 (require racket/cmdline)
 (require racket/date)
 (require db)
