@@ -71,7 +71,9 @@
 ; update an entry with new status (accepted, rejected, etc.)
 (define (update ID)
   (write-string (string-append "Updating entry " (number->string ID) "\n"))
-  (define entry (query-row conn "SELECT * FROM proposals WHERE ID=?" ID))
+  (define entry (query-maybe-row conn "SELECT * FROM proposals WHERE ID=?" ID))
+  (cond
+    [((eq? #f entry) (error "Invalid ID. Row not found"))])
   (write-string (string-append "Current status is: "
                                (vector-ref entry 9)
                                " ("
