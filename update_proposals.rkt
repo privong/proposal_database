@@ -17,7 +17,7 @@
 ; set up command line arguments
 (define mode (command-line
               #:program "update_proposals"
-              #:args (updatetype) ; (add, update)
+              #:args ([updatetype "help"]) ; (add, update, help)
               updatetype))
 
 ; print some help
@@ -118,7 +118,8 @@
 (cond
   [(regexp-match "help" mode) (printhelp)]
   [(regexp-match "add" mode) (addnew)]
-  [(regexp-match "update" mode) (findpending)])
+  [(regexp-match "update" mode) (findpending)]
+  [else (error(string-append "Unknown mode. Try " progname " help\n\n"))])
 
 ; close the databse
 (disconnect conn)
