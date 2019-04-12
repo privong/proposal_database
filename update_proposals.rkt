@@ -47,8 +47,7 @@
                  (vector-ref entry 2)
                  ") "
                  (vector-ref entry 3)
-                 ".\n"))
-  )
+                 ".\n")))
 
 ; add a new proposal to the database
 (define (addnew)
@@ -91,8 +90,7 @@
               newstatus
               resdate
               ID)
-  (write-string "Entry updated.\n")
-  )
+  (write-string "Entry updated.\n"))
 
 ; find proposals waiting for updates
 (define (findpending)
@@ -107,8 +105,7 @@
   (cond
     [(eq? (string->number upID) 0) (exit)]
     [(string->number upID) (update (string->number upID))]
-    [else (exit)])
-  )
+    [else (exit)]))
 
 ; make sure we can use the sqlite3 connection
 (cond (not (sqlite3-available?))
