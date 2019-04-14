@@ -14,5 +14,5 @@ compiled/
 # Dependency tracking files
 *.dep
 
-# fille configuration file
+# ignore configuration file
 config.rkt
