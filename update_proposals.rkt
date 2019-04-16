@@ -17,7 +17,7 @@
 ; set up command line arguments
 (define mode (command-line
               #:program "update_proposals"
-              #:args ([updatetype "help"]) ; (add, update, help)
+              #:args ([updatetype "help"]) ; (add, update, list-open help)
               updatetype))
 
 ; print some help
@@ -28,6 +28,7 @@
   (write-string "Where MODE is one of:\n")
   (write-string " add\t\t - add new proposal to database.\n")
   (write-string " update\t\t - update a a proposal with results.\n")
+  (write-string " list-open\t\t - Show all submitted (but not resolved) proposals.\n")
   (write-string " help\t\t - Show this help message.\n")
   (write-string "\nCopyright 2019 George C. Privon\n"))
 
@@ -45,9 +46,9 @@
                  (vector-ref entry 1)
                  "("
                  (vector-ref entry 2)
-                 ") "
+                 ") \""
                  (vector-ref entry 3)
-                 ".\n")))
+                 "\"\n")))
 
 ; add a new proposal to the database
 (define (addnew)
@@ -92,14 +93,18 @@
               ID)
   (write-string "Entry updated.\n"))
 
-; find proposals waiting for updates
-(define (findpending)
-  (write-string "Updating proposals")
-  ; retrieve all proposals whose status is still listed as "submitted"
+; retrieve and print the proposals whose status is still listed as "submitted"
+(define (printopen)
+   ; retrieve all proposals wh
   (define unfinished (query-rows conn "SELECT ID,telescope,solicitation,title FROM proposals WHERE status='submitted'"))
   (write-string (string-append (make-string (length unfinished)) " pending proposals found:\n"))
   ; print all the unresolved proposals to the screen
-  (map printentry unfinished)
+  (map printentry unfinished))
+
+; find proposals waiting for updates
+(define (findpending)
+  (write-string "Updating proposals")
+  (printopen)
   (write-string "Please enter a proposal number to edit (enter 0 or nothing to exit): ")
   (define upID (read-line))
   (cond
@@ -119,6 +124,7 @@
   [(regexp-match "help" mode) (printhelp)]
   [(regexp-match "add" mode) (addnew)]
   [(regexp-match "update" mode) (findpending)]
+  [(regexp-match "list-open" mode) (printopen)]
   [else (error(string-append "Unknown mode. Try " progname " help\n\n"))])
 
 ; close the databse
