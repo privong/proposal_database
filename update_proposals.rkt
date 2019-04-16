@@ -46,6 +46,8 @@
                  (vector-ref entry 1)
                  "("
                  (vector-ref entry 2)
+                 "; PI: "
+                 (vector-ref entry 4)
                  ") \""
                  (vector-ref entry 3)
                  "\"\n")))
@@ -96,7 +98,7 @@
 ; retrieve and print the proposals whose status is still listed as "submitted"
 (define (printopen)
    ; retrieve all proposals wh
-  (define unfinished (query-rows conn "SELECT ID,telescope,solicitation,title FROM proposals WHERE status='submitted'"))
+  (define unfinished (query-rows conn "SELECT ID,telescope,solicitation,title,PI FROM proposals WHERE status='submitted'"))
   (write-string (string-append (make-string (length unfinished)) " pending proposals found:\n"))
   ; print all the unresolved proposals to the screen
   (map printentry unfinished))
