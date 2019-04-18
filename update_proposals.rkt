@@ -27,7 +27,7 @@
 
   (write-string "Where MODE is one of:\n")
   (write-string " add\t\t - add new proposal to database.\n")
-  (write-string " update\t\t - update a a proposal with results.\n")
+  (write-string " update\t\t - update a proposal with results.\n")
   (write-string " list-open\t - Show all submitted (but not resolved) proposals.\n")
   (write-string " help\t\t - Show this help message.\n")
   (write-string "\nCopyright 2019 George C. Privon\n"))
