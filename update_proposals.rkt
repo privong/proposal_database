@@ -77,7 +77,7 @@
   (write-string (string-append "Updating entry " (number->string ID) "\n"))
   (define entry (query-maybe-row conn "SELECT * FROM proposals WHERE ID=?" ID))
   (cond
-    [((eq? #f entry) (error "Invalid ID. Row not found"))])
+    [(eq? #f entry) (error "Invalid ID. Row not found")])
   (write-string (string-append "Current status is: "
                                (vector-ref entry 9)
                                " ("
