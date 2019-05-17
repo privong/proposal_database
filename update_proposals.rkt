@@ -4,7 +4,7 @@
 
 (require racket/cmdline
          racket/date
-         db)
+         db
         "config.rkt") ; load configuration file
 
 (define progname "update_proposals.rkt")
