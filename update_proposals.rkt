@@ -2,14 +2,13 @@
 
 ;; This program updates an entry in a proposals database.
 
-(require racket/cmdline)
-(require racket/date)
-(require db)
+(require racket/cmdline
+         racket/date
+         db)
+        "config.rkt") ; load configuration file
 
 (define progname "update_proposals.rkt")
 
-; load configuration file
-(require (file "config.rkt"))
 
 ; give us the date in YYYY-MM-DD format
 (date-display-format 'iso-8601)

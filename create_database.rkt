@@ -4,6 +4,7 @@
 ;; for information on proposals.
 
 (require db)
+         file "config.rkt") ; load configuration file
 
 ; create the database and create the table
 (define (createdb dbloc)
@@ -25,8 +26,6 @@ resultdate TEXT DEFAULT '')")
   (disconnect conn)
   (write-string (string-append "Database created at " dbloc "\n")))
 
-; load configuration file
-(require (file "config.rkt"))
 
 ; make sure we can use the sqlite3 connection
 (cond (not (sqlite3-available?))
