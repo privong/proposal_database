@@ -3,8 +3,8 @@
 ;; This program creates a sqlite3 database and then creates an empty table
 ;; for information on proposals.
 
-(require db)
-         file "config.rkt") ; load configuration file
+(require db
+         "config.rkt") ; load configuration file
 
 ; create the database and create the table
 (define (createdb dbloc)
