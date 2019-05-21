@@ -1,4 +1,4 @@
-#lang racket/base
+#lang typed/racket/base
 
 ;; This program creates a sqlite3 database and then creates an empty table
 ;; for information on proposals.
@@ -7,6 +7,7 @@
          "config.rkt") ; load configuration file
 
 ; create the database and create the table
+(: createdb (-> String))
 (define (createdb dbloc)
   (write-string (string-append "Creating database " dbloc "\n"))
   (define conn (sqlite3-connect #:database dbloc
