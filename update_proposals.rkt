@@ -1,10 +1,10 @@
-#lang racket/base
+#lang typed/racket/base
 
 ;; This program updates an entry in a proposals database.
 
 (require racket/cmdline
          racket/date
-         db
+         typed/db
         "config.rkt") ; load configuration file
 
 (define progname "update_proposals.rkt")
@@ -14,12 +14,14 @@
 (date-display-format 'iso-8601)
 
 ; set up command line arguments
+(: mode (-> String))
 (define mode (command-line
               #:program "update_proposals"
               #:args ([updatetype "help"]) ; (add, update, list-open help)
               updatetype))
 
 ; print some help
+(: printhelp (-> Boolean))
 (define (printhelp)
   (write-string (string-append "Usage: "
                                progname " MODE\n\n"))
@@ -32,12 +34,14 @@
   (write-string "\nCopyright 2019 George C. Privon\n"))
 
 ; set up a condensed prompt for getting information
+(: getinput (-> String String))
 (define (getinput prompt)
   (write-string prompt)
   (write-string ": ")
   (read-line))
 
 ; take an input result from the SQL search and write it out nicely
+(: printentry (-> (Listof Symbol)))
 (define (printentry entry)
   (write-string (string-append
                  (number->string (vector-ref entry 0))
@@ -52,6 +56,7 @@
                  "\"\n")))
 
 ; add a new proposal to the database
+(: addnew (-> Boolean))
 (define (addnew)
   (write-string "Adding new proposal to database.\n")
   ; user inputs proposal data
@@ -72,6 +77,7 @@
               proptype org solic tele pi title coi status submitdate oID))
 
 ; update an entry with new status (accepted, rejected, etc.)
+(: update (-> Integer Boolean))
 (define (update ID)
   (write-string (string-append "Updating entry " (number->string ID) "\n"))
   (define entry (query-maybe-row conn "SELECT * FROM proposals WHERE ID=?" ID))
@@ -95,6 +101,7 @@
   (write-string "Entry updated.\n"))
 
 ; retrieve and print the proposals whose status is still listed as "submitted"
+(: printopen (-> Boolean))
 (define (printopen)
    ; retrieve all proposals wh
   (define unfinished (query-rows conn "SELECT ID,telescope,solicitation,title,PI FROM proposals WHERE status='submitted'"))
@@ -103,6 +110,7 @@
   (map printentry unfinished))
 
 ; find proposals waiting for updates
+(: findpending (-> Boolean))
 (define (findpending)
   (write-string "Updating proposals")
   (printopen)
@@ -118,6 +126,7 @@
     (error "Sqlite3 library not available."))
 
 ; open the database file
+(: conn (-> Symbol))
 (define conn (sqlite3-connect #:database dbloc))
 
 ; determine which mode we're in
