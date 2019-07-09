@@ -21,15 +21,16 @@
 
 ; print some help
 (define (printhelp)
-  (write-string (string-append "Usage: "
-                               progname " MODE\n\n"))
-
-  (write-string "Where MODE is one of:\n")
-  (write-string " add\t\t - add new proposal to database.\n")
-  (write-string " update\t\t - update a proposal with results.\n")
-  (write-string " list-open\t - Show all submitted (but not resolved) proposals.\n")
-  (write-string " help\t\t - Show this help message.\n")
-  (write-string "\nCopyright 2019 George C. Privon\n"))
+  (displayln (string-append "Usage: "
+                               progname " MODE"))
+  (newline)
+  (displayln "Where MODE is one of:")
+  (displayln " add\t\t - add new proposal to database.")
+  (displayln " update\t\t - update a proposal with results.")
+  (displayln " list-open\t - Show all submitted (but not resolved) proposals.")
+  (displayln " help\t\t - Show this help message.")
+  (newline)
+  (displayln "Copyright 2019 George C. Privon"))
 
 ; set up a condensed prompt for getting information
 (define (getinput prompt)
@@ -39,7 +40,7 @@
 
 ; take an input result from the SQL search and write it out nicely
 (define (printentry entry)
-  (write-string (string-append
+  (displayln (string-append
                  (number->string (vector-ref entry 0))
                  ": "
                  (vector-ref entry 1)
@@ -49,11 +50,11 @@
                  (vector-ref entry 4)
                  ") \""
                  (vector-ref entry 3)
-                 "\"\n")))
+                 "\"")))
 
 ; add a new proposal to the database
 (define (addnew)
-  (write-string "Adding new proposal to database.\n")
+  (displayln "Adding new proposal to database.")
   ; user inputs proposal data
   (define proptype (getinput "Proposal type"))
   (define org (getinput "Submitting organization"))
@@ -73,15 +74,15 @@
 
 ; update an entry with new status (accepted, rejected, etc.)
 (define (update ID)
-  (write-string (string-append "Updating entry " (number->string ID) "\n"))
+  (displayln (string-append "Updating entry " (number->string ID)))
   (define entry (query-maybe-row conn "SELECT * FROM proposals WHERE ID=?" ID))
   (cond
     [(eq? #f entry) (error "Invalid ID. Row not found")])
-  (write-string (string-append "Current status is: "
+  (displayln (string-append "Current status is: "
                                (vector-ref entry 9)
                                " ("
                                (vector-ref entry 10)
-                               ")\n"))
+                               ")"))
   (write-string "Please enter new status: ")
   (define newstatus (read-line))
   ;(write-string "Please enter date of updated status (leave blank to use current date): ")
@@ -92,13 +93,13 @@
               newstatus
               resdate
               ID)
-  (write-string "Entry updated.\n"))
+  (displayln "Entry updated."))
 
 ; retrieve and print the proposals whose status is still listed as "submitted"
 (define (printopen)
    ; retrieve all proposals wh
   (define unfinished (query-rows conn "SELECT ID,telescope,solicitation,title,PI FROM proposals WHERE status='submitted'"))
-  (write-string (string-append (make-string (length unfinished)) " pending proposals found:\n"))
+  (displayln (string-append (make-string (length unfinished)) " pending proposals found:"))
   ; print all the unresolved proposals to the screen
   (map printentry unfinished))
 
@@ -126,7 +127,7 @@
   [(regexp-match "add" mode) (addnew)]
   [(regexp-match "update" mode) (findpending)]
   [(regexp-match "list-open" mode) (printopen)]
-  [else (error(string-append "Unknown mode. Try " progname " help\n\n"))])
+  [else (error (string-append "Unknown mode. Try " progname " help\n\n"))])
 
 ; close the databse
 (disconnect conn)
