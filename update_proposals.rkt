@@ -30,7 +30,7 @@
   (displayln " list-open\t - Show all submitted (but not resolved) proposals.")
   (displayln " help\t\t - Show this help message.")
   (newline)
-  (displayln "Copyright 2019 George C. Privon"))
+  (displayln "Copyright 2019-2020 George C. Privon"))
 
 ; set up a condensed prompt for getting information
 (define (getinput prompt)
@@ -99,7 +99,8 @@
 (define (printopen)
    ; retrieve all proposals wh
   (define unfinished (query-rows conn "SELECT ID,telescope,solicitation,title,PI FROM proposals WHERE status='submitted'"))
-  (displayln (string-append (make-string (length unfinished)) " pending proposals found:"))
+  (displayln (string-append (number->string (length unfinished)) " pending proposals found."))
+  (newline)
   ; print all the unresolved proposals to the screen
   (map printentry unfinished))
 
