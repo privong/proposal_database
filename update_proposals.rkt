@@ -107,7 +107,7 @@
 ; retrieve and print the proposals whose status are not listed as "submitted"
 (define (printclosed)
   (define finished (query-rows conn "SELECT ID,telescope,solicitation,title,PI FROM proposals WHERE status!='submitted'"))
-  (displayln (string-append (number->string (length finished)) " pending proposals found."))
+  (displayln (string-append (number->string (length finished)) " resolved proposals found."))
   (newline)
   ; print all the unresolved proposals to the screen
   (map printentry finished))
