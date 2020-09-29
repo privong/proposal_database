@@ -16,7 +16,7 @@
 ; set up command line arguments
 (define mode (command-line
               #:program "update_proposals"
-              #:args ([updatetype "help"]) ; (add, update, list-open help)
+              #:args ([updatetype "help"]) ; (add, update, list-open, list-closed, help)
               updatetype))
 
 ; print some help
@@ -28,6 +28,7 @@
   (displayln " add\t\t - add new proposal to database.")
   (displayln " update\t\t - update a proposal with results.")
   (displayln " list-open\t - Show all submitted (but not resolved) proposals.")
+  (displayln " list-closed\t - Show all resolved proposals.")
   (displayln " help\t\t - Show this help message.")
   (newline)
   (displayln "Copyright 2019-2020 George C. Privon"))
@@ -97,12 +98,19 @@
 
 ; retrieve and print the proposals whose status is still listed as "submitted"
 (define (printopen)
-   ; retrieve all proposals wh
   (define unfinished (query-rows conn "SELECT ID,telescope,solicitation,title,PI FROM proposals WHERE status='submitted'"))
   (displayln (string-append (number->string (length unfinished)) " pending proposals found."))
   (newline)
   ; print all the unresolved proposals to the screen
   (map printentry unfinished))
+
+; retrieve and print the proposals whose status are not listed as "submitted"
+(define (printclosed)
+  (define finished (query-rows conn "SELECT ID,telescope,solicitation,title,PI FROM proposals WHERE status!='submitted'"))
+  (displayln (string-append (number->string (length finished)) " pending proposals found."))
+  (newline)
+  ; print all the unresolved proposals to the screen
+  (map printentry finished))
 
 ; find proposals waiting for updates
 (define (findpending)
@@ -128,6 +136,7 @@
   [(regexp-match "add" mode) (addnew)]
   [(regexp-match "update" mode) (findpending)]
   [(regexp-match "list-open" mode) (printopen)]
+  [(regexp-match "list-closed" mode) (printclosed)]
   [else (error (string-append "Unknown mode. Try " progname " help\n\n"))])
 
 ; close the databse
