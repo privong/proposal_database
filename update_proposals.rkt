@@ -131,7 +131,7 @@
 (define (querysys mode)
   ; first see if we need write access or if we can use read only
   (define dbmode (if (or (regexp-match "add" mode)
-          (regexp-match "update" mode))
+                         (regexp-match "update" mode))
                      'read/write
                      'read-only))
   ; open the database with the specified mode
@@ -140,9 +140,9 @@
   ; now handle the user's request
   (cond
     [(regexp-match "add" mode) (addnew conn)]
-  [(regexp-match "update" mode) (findpending conn)]
-  [(regexp-match "list-open" mode) (printprop conn #:submitted #t)]
-  [(regexp-match "list-closed" mode) (printprop conn #:submitted #f)])
+    [(regexp-match "update" mode) (findpending conn)]
+    [(regexp-match "list-open" mode) (printprop conn #:submitted #t)]
+    [(regexp-match "list-closed" mode) (printprop conn #:submitted #f)])
 
   ; close the databse
   (disconnect conn))
