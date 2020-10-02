@@ -5,7 +5,7 @@
 (require racket/cmdline
          racket/date
          db
-        "config.rkt") ; load configuration file
+         "config.rkt") ; load configuration file
 
 (define progname "update_proposals.rkt")
 
@@ -22,7 +22,7 @@
 ; print some help
 (define (printhelp)
   (displayln (string-append "Usage: "
-                               progname " MODE"))
+                            progname " MODE"))
   (newline)
   (displayln "Where MODE is one of:")
   (displayln " add\t\t - add new proposal to database.")
@@ -42,19 +42,19 @@
 ; take an input result from the SQL search and write it out nicely
 (define (printentry entry)
   (displayln (string-append
-                 (number->string (vector-ref entry 0))
-                 ": "
-                 (vector-ref entry 1)
-                 "("
-                 (vector-ref entry 2)
-                 "; PI: "
-                 (vector-ref entry 4)
-                 ") \""
-                 (vector-ref entry 3)
-                 "\"")))
+              (number->string (vector-ref entry 0))
+              ": "
+              (vector-ref entry 1)
+              "("
+              (vector-ref entry 2)
+              "; PI: "
+              (vector-ref entry 4)
+              ") \""
+              (vector-ref entry 3)
+              "\"")))
 
 ; add a new proposal to the database
-(define (addnew)
+(define (addnew conn)
   (displayln "Adding new proposal to database.")
   ; user inputs proposal data
   (define proptype (getinput "Proposal type"))
@@ -74,16 +74,16 @@
               proptype org solic tele pi title coi status submitdate oID))
 
 ; update an entry with new status (accepted, rejected, etc.)
-(define (update ID)
+(define (update conn ID)
   (displayln (string-append "Updating entry " (number->string ID)))
   (define entry (query-maybe-row conn "SELECT * FROM proposals WHERE ID=?" ID))
   (cond
     [(eq? #f entry) (error "Invalid ID. Row not found")])
   (displayln (string-append "Current status is: "
-                               (vector-ref entry 9)
-                               " ("
-                               (vector-ref entry 10)
-                               ")"))
+                            (vector-ref entry 9)
+                            " ("
+                            (vector-ref entry 10)
+                            ")"))
   (write-string "Please enter new status: ")
   (define newstatus (read-line))
   ;(write-string "Please enter date of updated status (leave blank to use current date): ")
@@ -97,7 +97,7 @@
   (displayln "Entry updated."))
 
 ; retrieve and print proposals based on status
-(define (printprop #:submitted issub)
+(define (printprop conn #:submitted issub)
   (define selclause (if issub
                         "status='submitted'"
                         "status!='submitted'"))
@@ -112,31 +112,47 @@
   (map printentry props))
 
 ; find proposals waiting for updates
-(define (findpending)
+(define (findpending conn)
   (write-string "Updating proposals")
-  (printprop #:submitted #t)
+  (printprop conn #:submitted #t)
   (write-string "Please enter a proposal number to edit (enter 0 or nothing to exit): ")
   (define upID (read-line))
   (cond
     [(eq? (string->number upID) 0) (exit)]
-    [(string->number upID) (update (string->number upID))]
+    [(string->number upID) (update conn (string->number upID))]
     [else (exit)]))
 
 ; make sure we can use the sqlite3 connection
-(cond (not (sqlite3-available?))
-    (error "Sqlite3 library not available."))
+(define checkdblib
+  (cond (not (sqlite3-available?))
+        (error "Sqlite3 library not available.")))
 
-; open the database file
-(define conn (sqlite3-connect #:database dbloc))
+; catch-all routine for when we need to access the database
+(define (querysys mode)
+  ; first see if we need write access or if we can use read only
+  (define dbmode (if (or (regexp-match "add" mode)
+          (regexp-match "update" mode))
+                     'read/write
+                     'read-only))
+  ; open the database with the specified mode
+  (define conn (sqlite3-connect #:database dbloc
+                                #:mode dbmode))
+  ; now handle the user's request
+  (cond
+    [(regexp-match "add" mode) (addnew conn)]
+  [(regexp-match "update" mode) (findpending conn)]
+  [(regexp-match "list-open" mode) (printprop conn #:submitted #t)]
+  [(regexp-match "list-closed" mode) (printprop conn #:submitted #f)])
 
-; determine which mode we're in
+  ; close the databse
+  (disconnect conn))
+
+(define validmodes (list "add" "update" "list-open" "list-closed"))
+
+; First see if the user wants help or if we need to pass to one of the other
+; procedures
 (cond
   [(regexp-match "help" mode) (printhelp)]
-  [(regexp-match "add" mode) (addnew)]
-  [(regexp-match "update" mode) (findpending)]
-  [(regexp-match "list-open" mode) (printprop #:submitted #t)]
-  [(regexp-match "list-closed" mode) (printprop #:submitted #f)]
+  [(list? (member mode validmodes) )(querysys mode)]
   [else (error (string-append "Unknown mode. Try " progname " help\n\n"))])
 
-; close the databse
-(disconnect conn)
