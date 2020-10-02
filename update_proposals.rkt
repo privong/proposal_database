@@ -153,6 +153,6 @@
 ; procedures
 (cond
   [(regexp-match "help" mode) (printhelp)]
-  [(list? (member mode validmodes) )(querysys mode)]
+  [(list? (member mode validmodes)) (querysys mode)]
   [else (error (string-append "Unknown mode. Try " progname " help\n\n"))])
 
