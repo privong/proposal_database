@@ -96,26 +96,25 @@
               ID)
   (displayln "Entry updated."))
 
-; retrieve and print the proposals whose status is still listed as "submitted"
-(define (printopen)
-  (define unfinished (query-rows conn "SELECT ID,telescope,solicitation,title,PI FROM proposals WHERE status='submitted'"))
-  (displayln (string-append (number->string (length unfinished)) " pending proposals found."))
+; retrieve and print proposals based on status
+(define (printprop #:submitted issub)
+  (define selclause (if issub
+                        "status='submitted'"
+                        "status!='submitted'"))
+  (define props (query-rows conn (string-append "SELECT ID,telescope,solicitation,title,PI FROM proposals WHERE "
+                                                selclause)))
+  (display (string-append (number->string (length props))))
+  (if issub
+      (displayln " pending proposals found.")
+      (displayln " resolved proposals found."))
   (newline)
   ; print all the unresolved proposals to the screen
-  (map printentry unfinished))
-
-; retrieve and print the proposals whose status are not listed as "submitted"
-(define (printclosed)
-  (define finished (query-rows conn "SELECT ID,telescope,solicitation,title,PI FROM proposals WHERE status!='submitted'"))
-  (displayln (string-append (number->string (length finished)) " resolved proposals found."))
-  (newline)
-  ; print all the unresolved proposals to the screen
-  (map printentry finished))
+  (map printentry props))
 
 ; find proposals waiting for updates
 (define (findpending)
   (write-string "Updating proposals")
-  (printopen)
+  (printprop #:submitted #t)
   (write-string "Please enter a proposal number to edit (enter 0 or nothing to exit): ")
   (define upID (read-line))
   (cond
@@ -135,8 +134,8 @@
   [(regexp-match "help" mode) (printhelp)]
   [(regexp-match "add" mode) (addnew)]
   [(regexp-match "update" mode) (findpending)]
-  [(regexp-match "list-open" mode) (printopen)]
-  [(regexp-match "list-closed" mode) (printclosed)]
+  [(regexp-match "list-open" mode) (printprop #:submitted #t)]
+  [(regexp-match "list-closed" mode) (printprop #:submitted #f)]
   [else (error (string-append "Unknown mode. Try " progname " help\n\n"))])
 
 ; close the databse
