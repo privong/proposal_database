@@ -113,7 +113,7 @@
 
 ; find proposals waiting for updates
 (define (findpending conn)
-  (write-string "Updating proposals")
+  (write-string "Updating proposals. ")
   (printprop conn #:submitted #t)
   (write-string "Please enter a proposal number to edit (enter 0 or nothing to exit): ")
   (define upID (read-line))
