@@ -31,7 +31,7 @@
   (displayln " list-closed\t - Show all resolved proposals.")
   (displayln " help\t\t - Show this help message.")
   (newline)
-  (displayln "Copyright 2019-2020 George C. Privon"))
+  (displayln "Copyright 2019-2020, 2022 George C. Privon"))
 
 ; set up a condensed prompt for getting information
 (define (getinput prompt)
@@ -40,7 +40,7 @@
   (read-line))
 
 ; take an input result from the SQL search and write it out nicely
-(define (printentry entry)
+(define (printentry entry issub)
   (displayln (string-append
               (number->string (vector-ref entry 0))
               ": "
@@ -49,6 +49,10 @@
               (vector-ref entry 2)
               "; PI: "
               (vector-ref entry 4)
+              (if (not issub)
+                  (string-append "; "
+                                 (vector-ref entry 5))
+                  "")
               ") \""
               (vector-ref entry 3)
               "\"")))
@@ -101,7 +105,7 @@
   (define selclause (if issub
                         "status='submitted'"
                         "status!='submitted'"))
-  (define props (query-rows conn (string-append "SELECT ID,telescope,solicitation,title,PI FROM proposals WHERE "
+  (define props (query-rows conn (string-append "SELECT ID,telescope,solicitation,title,PI,status FROM proposals WHERE "
                                                 selclause)))
   (display (string-append (number->string (length props))))
   (if issub
@@ -109,7 +113,9 @@
       (displayln " resolved proposals found."))
   (newline)
   ; print all the unresolved proposals to the screen
-  (map printentry props))
+  (map (lambda (prop)
+         (printentry prop issub))
+       props))
 
 ; find proposals waiting for updates
 (define (findpending conn)
