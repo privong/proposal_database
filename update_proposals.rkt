@@ -148,17 +148,15 @@
     [(regexp-match "add" mode) (addnew conn)]
     [(regexp-match "update" mode) (findpending conn)]
     [(regexp-match "list-open" mode) (printprop conn #:submitted #t)]
-    [(regexp-match "list-closed" mode) (printprop conn #:submitted #f)])
+    [(regexp-match "list-closed" mode) (printprop conn #:submitted #f)]
+    [else (error (string-append "Unknown mode. Try " progname " help\n\n"))])
 
   ; close the databse
   (disconnect conn))
-
-(define validmodes (list "add" "update" "list-open" "list-closed"))
 
 ; First see if the user wants help or if we need to pass to one of the other
 ; procedures
 (cond
   [(regexp-match "help" mode) (printhelp)]
-  [(list? (member mode validmodes)) (querysys mode)]
-  [else (error (string-append "Unknown mode. Try " progname " help\n\n"))])
+  [else (querysys mode)])
 
