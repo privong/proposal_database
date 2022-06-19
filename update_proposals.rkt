@@ -152,22 +152,26 @@
 (define (proposal-stats conn)
   (displayln "Proposal statistics to date.\n")
 
+  ; do statistics for all proposals
   (displayln "\tAll proposals")
+  (let-values ([(Nprop Npending Nrejected) (get-stats conn)])
+    (print-stats Nprop Npending Nrejected))
 
-  (define Nprop (length (query-rows conn
-                                    "SELECT ID FROM proposals;")))
+  ; do statistics for proposals as PI
+  (displayln "\n\tPI'ed Proposals")
+  (let-values ([(Nprop Npending Nrejected) (get-stats conn #:selclause "PI LIKE '%Privon%'")])
+    (print-stats Nprop Npending Nrejected))
+
+  )
+
+; given numbers, format somewhat pretty output of proposal statistics
+(define (print-stats Nprop Npending Nrejected)
   (display (number->string Nprop))
   (display  "\ttotal proposals entered (")
-
-  (define Npending (length (query-rows conn
-                                       "SELECT ID FROM proposals WHERE status='submitted'")))
   (display (number->string (- Nprop Npending)))
   (display " proposals resolved; ")
   (display (number->string Npending))
   (displayln " proposals pending).")
-
-  (define Nrejected (length (query-rows conn
-                                        "SELECT ID FROM proposals WHERE status LIKE '%rejected%'")))
   (define Naccepted (- Nprop Npending Nrejected))
   (display (number->string Naccepted))
   (display "\tproposals accepted (f=")
@@ -179,6 +183,31 @@
   (display (number->string (/ Nrejected
                               (- Nprop Npending))))
   (displayln " of resolved proposals)."))
+
+
+; retrieve proposal numbers from the database, for statistics
+(define (get-stats conn #:selclause [extrasel ""])
+  (define mysel (if (eq? 0 (string-length extrasel))
+                    ""
+                    (string-append " AND "
+                                   extrasel)))
+  (define mysel-one (if (eq? 0 (string-length extrasel))
+                        ""
+                        (string-append " WHERE "
+                                       extrasel)))
+  (values
+   ; total number of proposals
+   (length (query-rows conn
+                       (string-append "SELECT ID FROM proposals"
+                                      mysel-one)))
+   ; Number of pending proposals
+   (length (query-rows conn
+                       (string-append "SELECT ID FROM proposals WHERE status='submitted'"
+                                      mysel)))
+   ; Number of rejected proposals
+   (length (query-rows conn
+                       (string-append "SELECT ID FROM proposals WHERE status LIKE '%rejected%'"
+                                      mysel)))))
 
 ; make sure we can use the sqlite3 connection
 (define checkdblib
