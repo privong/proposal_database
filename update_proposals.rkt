@@ -27,6 +27,7 @@
   (displayln "Where MODE is one of:")
   (displayln " add\t\t - add new proposal to database.")
   (displayln " update\t\t - update a proposal with results.")
+  (displayln " stats\t\t - print summary statistics.")
   (displayln " list-open\t - Show all submitted (but not resolved) proposals.")
   (displayln " list-closed\t - Show all resolved proposals.")
   (displayln " list-accepted\t - Show accepted proposals.")
@@ -142,6 +143,43 @@
     [(string->number upID) (update conn (string->number upID))]
     [else (exit)]))
 
+; compute and print some statistics about proposals:
+; - total number of proposals (since earliest date)
+; - number of pending proposals
+; - number of successful proposals and corresponding fraction of the total that are not pending
+; - number of rejected proposals and corresponding fraction of the total that are not pending
+; - do the above two for all proposals and for proposals that I PI'ed. (TODO: PI'ed separation not yet implemented)
+(define (proposal-stats conn)
+  (displayln "Proposal statistics to date.\n")
+
+  (displayln "\tAll proposals")
+
+  (define Nprop (length (query-rows conn
+                                    "SELECT ID FROM proposals;")))
+  (display (number->string Nprop))
+  (display  "\ttotal proposals entered (")
+
+  (define Npending (length (query-rows conn
+                                       "SELECT ID FROM proposals WHERE status='submitted'")))
+  (display (number->string (- Nprop Npending)))
+  (display " proposals resolved; ")
+  (display (number->string Npending))
+  (displayln " proposals pending).")
+
+  (define Nrejected (length (query-rows conn
+                                        "SELECT ID FROM proposals WHERE status LIKE '%rejected%'")))
+  (define Naccepted (- Nprop Npending Nrejected))
+  (display (number->string Naccepted))
+  (display "\tproposals accepted (f=")
+  (display (number->string (/ Naccepted
+                              (- Nprop Npending))))
+  (displayln " of resolved proposals).")
+  (display (number->string Nrejected))
+  (display "\tproposals rejected (f=")
+  (display (number->string (/ Nrejected
+                              (- Nprop Npending))))
+  (displayln " of resolved proposals)."))
+
 ; make sure we can use the sqlite3 connection
 (define checkdblib
   (cond (not (sqlite3-available?))
@@ -161,6 +199,7 @@
   (cond
     [(regexp-match "add" mode) (addnew conn)]
     [(regexp-match "update" mode) (findpending conn)]
+    [(regexp-match "stats" mode) (proposal-stats conn)]
     [(regexp-match "list-open" mode) (printprop conn #:submitted #t)]
     [(regexp-match "list-closed" mode) (printprop conn #:submitted #f)]
     [(regexp-match "list-accepted" mode) (printprop conn #:submitted #f #:accepted #t)]
@@ -169,6 +208,7 @@
 
   ; close the databse
   (disconnect conn))
+
 
 ; First see if the user wants help or if we need to pass to one of the other
 ; procedures
