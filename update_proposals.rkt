@@ -29,6 +29,8 @@
   (displayln " update\t\t - update a proposal with results.")
   (displayln " list-open\t - Show all submitted (but not resolved) proposals.")
   (displayln " list-closed\t - Show all resolved proposals.")
+  (displayln " list-accepted\t - Show accepted proposals.")
+  (displayln " list-rejected\t - Show rejected proposals.")
   (displayln " help\t\t - Show this help message.")
   (newline)
   (displayln "Copyright 2019-2020, 2022 George C. Privon"))
@@ -101,10 +103,22 @@
   (displayln "Entry updated."))
 
 ; retrieve and print proposals based on status
-(define (printprop conn #:submitted issub)
-  (define selclause (if issub
-                        "status='submitted'"
-                        "status!='submitted'"))
+(define (printprop conn
+                   #:submitted issub
+                   #:accepted [isaccept #f]
+                   #:rejected [isrej #f])
+  (define selclause (string-append
+                     (if issub
+                         "status='submitted'"
+                         "status!='submitted'")
+                     ; find things that are "accepted" or "funded"
+                     (if isaccept
+                         " AND status LIKE '%Accepted%' OR status LIKE '%Funded%'"
+                         "")
+                     ; find things that are "rejected"
+                     (if isrej
+                         " AND status LIKE '%Rejected%'"
+                         "")))
   (define props (query-rows conn (string-append "SELECT ID,telescope,solicitation,title,PI,status FROM proposals WHERE "
                                                 selclause)))
   (display (string-append (number->string (length props))))
@@ -149,6 +163,8 @@
     [(regexp-match "update" mode) (findpending conn)]
     [(regexp-match "list-open" mode) (printprop conn #:submitted #t)]
     [(regexp-match "list-closed" mode) (printprop conn #:submitted #f)]
+    [(regexp-match "list-accepted" mode) (printprop conn #:submitted #f #:accepted #t)]
+    [(regexp-match "list-rejected" mode) (printprop conn #:submitted #f #:rejected #t)]
     [else (error (string-append "Unknown mode. Try " progname " help\n\n"))])
 
   ; close the databse
