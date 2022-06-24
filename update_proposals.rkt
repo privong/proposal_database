@@ -158,11 +158,15 @@
     (print-stats Nprop Npending Nrejected))
 
   ; do statistics for proposals as PI
-  (displayln "\n\tPI'ed Proposals")
-  (let-values ([(Nprop Npending Nrejected) (get-stats conn #:selclause "PI LIKE '%Privon%'")])
+  (displayln (string-append "\n\tPI'ed Proposals (by "
+                            PIname
+                            ")"))
+  (let-values ([(Nprop Npending Nrejected) (get-stats conn #:selclause (string-append "PI LIKE '%"
+                                                                                      PIname
+                                                                                      "%'"))])
     (print-stats Nprop Npending Nrejected))
 
-  )
+)
 
 ; given numbers, format somewhat pretty output of proposal statistics
 (define (print-stats Nprop Npending Nrejected)

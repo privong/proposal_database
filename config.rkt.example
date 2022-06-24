@@ -1,6 +1,10 @@
 #lang typed/racket/base
 
-(provide dbloc)
+(provide dbloc
+         PIname)
 
 (: dbloc String)
 (define dbloc "/path/to/database")
+
+(: PIname String)
+(define PIname "Lastname")
