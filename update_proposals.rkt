@@ -29,7 +29,7 @@
   (displayln " update\t\t - update a proposal with results.")
   (displayln " stats\t\t - print summary statistics.")
   (displayln " list-open\t - Show all submitted (but not resolved) proposals.")
-  (displayln " list-closed\t - Show all resolved proposals.")
+  (displayln " list-closed\t - Show all resolved (accepted and rejected) proposals.")
   (displayln " list-accepted\t - Show accepted proposals.")
   (displayln " list-rejected\t - Show rejected proposals.")
   (displayln " help\t\t - Show this help message.")
