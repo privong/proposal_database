@@ -13,11 +13,30 @@
 ; give us the date in YYYY-MM-DD format
 (date-display-format 'iso-8601)
 
+; parameters
+; start and end date to sub-select proposals within a given range
+(define start-date (make-parameter #f))
+(define end-date (make-parameter #f))
+; if #t, use proposal type, submitting organiation, solicitation/call, and
+; telescope name from the most recently submitted (i.e., highest ID) proposal
+(define reuse-params (make-parameter #f))
+
 ; set up command line arguments
 (define mode (command-line
               #:program "update_proposals"
+              #:once-each
+              [("-s" "--start-date") sd "Start of date range (YYYY-MM-DD)"
+                                     (start-date sd)]
+              [("-e" "--end-date") ed "End of date range (YYYY-MM-DD)"
+                                   (end-date ed)]
+              [("-r" "--reuse-parameters") "Reuse/auto-fill proposal type, submitting organization, solicitation/call and telescope name from the most recently added proposal."
+                                           (reuse-params #t)]
               #:args ([updatetype "help"]) ; (add, update, list-open, list-closed, help)
               updatetype))
+
+(if (start-date)
+    (println (start-date))
+    (println "No start date provided"))
 
 ; print some help
 (define (printhelp)
@@ -34,7 +53,7 @@
   (displayln " list-rejected\t - Show rejected proposals.")
   (displayln " help\t\t - Show this help message.")
   (newline)
-  (displayln "Copyright 2019-2020, 2022 George C. Privon"))
+  (displayln "Copyright 2019-2020, 2022-2023 George C. Privon"))
 
 ; set up a condensed prompt for getting information
 (define (getinput prompt)
@@ -60,15 +79,21 @@
               (vector-ref entry 3)
               "\"")))
 
+(define (get-last-proposal-call conn)
+  (println "Adopting proposal information from last submission")
+  (last-proposal-call conn))
+
+; get information from the most recent proposal submission
+(define (last-proposal-call conn)
+  (query-exec conn "SELECT type, organization, solicitation, telescope FROM proposals ORDER BY id DESC LIMIT 1"))
+
 ; add a new proposal to the database
 (define (addnew conn)
   (displayln "Adding new proposal to database.")
+  (define propinfo (cond [(reuse-params) (get-last-proposal-call conn)]
+        [else (map getinput ("Proposal type" "Submitting Organization" "Solicitation/Call" "Telescope"))]))
   ; user inputs proposal data
-  (define proptype (getinput "Proposal type"))
-  (define org (getinput "Submitting organization"))
-  (define solic (getinput "Solitation/call"))
-  (define tele (getinput "Telescope"))
-  (define title (getinput "Proposal title"))
+  (cons propinfo (getinput "Proposal title"))
   (define pi (getinput "PI"))
   (define coi (getinput "CoIs"))
   ; assume all these proposals are submitted, don't ask the user
@@ -77,8 +102,8 @@
   (define oID (getinput "Organization's proposal ID"))
 
   ; do the INSERT into the Sqlite database
-  (query-exec conn "INSERT INTO proposals (type, organization, solicitation, telescope, PI, title, CoI, status, submitdate, orgpropID) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-              proptype org solic tele pi title coi status submitdate oID))
+  (query-exec conn "INSERT INTO proposals (type, organization, solicitation, telescope, title, PI, CoI, status, submitdate, orgpropID) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+              proptype org solic tele title pi coi status submitdate oID))
 
 ; update an entry with new status (accepted, rejected, etc.)
 (define (update conn ID)
