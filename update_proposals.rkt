@@ -34,10 +34,6 @@
               #:args ([updatetype "help"]) ; (add, update, list-open, list-closed, help)
               updatetype))
 
-(if (start-date)
-    (println (start-date))
-    (println "No start date provided"))
-
 ; print some help
 (define (printhelp)
   (displayln (string-append "Usage: "
