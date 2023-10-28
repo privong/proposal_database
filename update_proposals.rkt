@@ -85,25 +85,30 @@
 
 ; get information from the most recent proposal submission
 (define (last-proposal-call conn)
-  (query-exec conn "SELECT type, organization, solicitation, telescope FROM proposals ORDER BY id DESC LIMIT 1"))
+  (query-list conn "SELECT type, organization, solicitation, telescope FROM proposals ORDER BY id DESC LIMIT 1"))
 
 ; add a new proposal to the database
 (define (addnew conn)
+  ; full list of input fileds that we will need (these will be the prompts
+  ; to the user)
+  (define input-fields ("Proposal type" "Submitting Organization" "Solicitation/Call" "Telescope" "Proposal Title" "PI" "CoIs" "Submit date (YYYY-MM-DD)" "Organization's propsal ID"))
   (displayln "Adding new proposal to database.")
-  (define propinfo (cond [(reuse-params) (get-last-proposal-call conn)]
-        [else (map getinput ("Proposal type" "Submitting Organization" "Solicitation/Call" "Telescope"))]))
-  ; user inputs proposal data
-  (cons propinfo (getinput "Proposal title"))
-  (define pi (getinput "PI"))
-  (define coi (getinput "CoIs"))
   ; assume all these proposals are submitted, don't ask the user
   (define status "submitted")
-  (define submitdate (getinput "Submit date (YYYY-MM-DD)"))
-  (define oID (getinput "Organization's proposal ID"))
+
+  ; get the proposal information
+  (define propinfo
+    (cond
+      ; if we're re-using parameters, get info from the most recent submission
+      ; and append the user input for the remaining fields
+      [(reuse-params) (append (get-last-proposal-call conn)
+                              (map getinput (list-tail input-fields 4)))]
+      ; if not using previous information, ask the user for all inputs
+      [else (map getinput input-fields)]))
 
   ; do the INSERT into the Sqlite database
-  (query-exec conn "INSERT INTO proposals (type, organization, solicitation, telescope, title, PI, CoI, status, submitdate, orgpropID) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-              proptype org solic tele title pi coi status submitdate oID))
+  (query-exec conn "INSERT INTO proposals (type, organization, solicitation, telescope, title, PI, CoI, submitdate, orgpropID, status) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+              (append propinfo status))
 
 ; update an entry with new status (accepted, rejected, etc.)
 (define (update conn ID)
