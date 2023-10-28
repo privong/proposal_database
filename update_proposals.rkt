@@ -14,9 +14,6 @@
 (date-display-format 'iso-8601)
 
 ; parameters
-; start and end date to sub-select proposals within a given range
-(define start-date (make-parameter #f))
-(define end-date (make-parameter #f))
 ; if #t, use proposal type, submitting organiation, solicitation/call, and
 ; telescope name from the most recently submitted (i.e., highest ID) proposal
 (define reuse-params (make-parameter #f))
@@ -25,10 +22,6 @@
 (define mode (command-line
               #:program "update_proposals"
               #:once-each
-              [("-s" "--start-date") sd "Start of date range (YYYY-MM-DD)"
-                                     (start-date sd)]
-              [("-e" "--end-date") ed "End of date range (YYYY-MM-DD)"
-                                   (end-date ed)]
               [("-r" "--reuse-parameters") "Reuse/auto-fill proposal type, submitting organization, solicitation/call and telescope name from the most recently added proposal."
                                            (reuse-params #t)]
               #:args ([updatetype "help"]) ; (add, update, list-open, list-closed, help)
