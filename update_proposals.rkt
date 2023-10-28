@@ -13,9 +13,18 @@
 ; give us the date in YYYY-MM-DD format
 (date-display-format 'iso-8601)
 
+; parameters
+; start and end date to sub-select proposals within a given range
+(define start-date (make-parameter #f))
+(define end-date (make-parameter #f))
 ; set up command line arguments
 (define mode (command-line
               #:program "update_proposals"
+              #:once-each
+              [("-s" "--start-date") sd "Start of date range (YYYY-MM-DD)"
+                                     (start-date sd)]
+              [("-e" "--end-date") ed "End of date range (YYYY-MM-DD)"
+                                   (end-date ed)]
               #:args ([updatetype "help"]) ; (add, update, list-open, list-closed, help)
               updatetype))
 
@@ -103,6 +112,16 @@
               ID)
   (displayln "Entry updated."))
 
+; if the user selects a date range we need to decide which date to filter on
+; If they're looking at submitted (i.e., open) proposals, use the submitted
+; date.
+; If they're looking at closed/resolved proposals, use the dates proposals
+; were resolved.
+(define (date-for-selection submitted)
+  (if submitted
+    "submitdate"
+    "resultdate"))
+
 ; retrieve and print proposals based on status
 (define (printprop conn
                    #:submitted issub
@@ -120,8 +139,32 @@
                      (if isrej
                          " AND status LIKE '%Rejected%'"
                          "")))
+  ; generate a selection clause if the user requested a restricted range
+  (define dateclause (string-append
+                       (if (or (start-date) (end-date))
+                         " AND "
+                         "")
+                       (if (start-date)
+                         (string-append
+                           " DATE("
+                           (date-for-selection issub)
+                           ") >= DATE('"
+                           (start-date)
+                           "') ")
+                         "")
+                       (if (and (start-date) (end-date))
+                         " AND "
+                         "")
+                       (if (end-date)
+                         (string-append
+                           " DATE("
+                           (date-for-selection issub)
+                           ") <= DATE('"
+                           (end-date)
+                           "') ")
+                         "")))
   (define props (query-rows conn (string-append "SELECT ID,telescope,solicitation,title,PI,status FROM proposals WHERE "
-                                                selclause)))
+                                                (string-append selclause dateclause)))
   (display (string-append (number->string (length props))))
   (if issub
       (displayln " pending proposals found.")
