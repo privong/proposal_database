@@ -80,7 +80,15 @@
 (define (addnew conn)
   ; full list of input fileds that we will need (these will be the prompts
   ; to the user)
-  (define input-fields ("Proposal type" "Submitting Organization" "Solicitation/Call" "Telescope" "Proposal Title" "PI" "CoIs" "Submit date (YYYY-MM-DD)" "Organization's propsal ID"))
+  (define input-fields (list "Proposal type"
+                             "Submitting Organization"
+                             "Solicitation/Call"
+                             "Telescope"
+                             "Proposal Title"
+                             "PI"
+                             "CoIs"
+                             "Submit date (YYYY-MM-DD)"
+                             "Organization's propsal ID"))
   (displayln "Adding new proposal to database.")
   ; assume all these proposals are submitted, don't ask the user
   (define status "submitted")
@@ -97,7 +105,7 @@
 
   ; do the INSERT into the Sqlite database
   (query-exec conn "INSERT INTO proposals (type, organization, solicitation, telescope, title, PI, CoI, submitdate, orgpropID, status) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-              (append propinfo status))
+              (append propinfo status)))
 
 ; update an entry with new status (accepted, rejected, etc.)
 (define (update conn ID)
