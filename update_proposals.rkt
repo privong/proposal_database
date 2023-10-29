@@ -133,7 +133,7 @@
                          "status!='submitted'")
                      ; find things that are "accepted" or "funded"
                      (if isaccept
-                         " AND status LIKE '%Accepted%' OR status LIKE '%Funded%'"
+                         " AND (status LIKE '%Accepted%' OR status LIKE '%Funded%')"
                          "")
                      ; find things that are "rejected"
                      (if isrej
@@ -164,7 +164,8 @@
                            "') ")
                          "")))
   (define props (query-rows conn (string-append "SELECT ID,telescope,solicitation,title,PI,status FROM proposals WHERE "
-                                                (string-append selclause dateclause)))
+                                                selclause
+                                                dateclause)))
   (display (string-append (number->string (length props))))
   (if issub
       (displayln " pending proposals found.")
