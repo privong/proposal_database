@@ -75,7 +75,7 @@
 
 ; get information from the most recent proposal submission
 (define (last-proposal-call conn)
-  (query-list conn "SELECT type, organization, solicitation, telescope FROM proposals ORDER BY id DESC LIMIT 1"))
+  (vector->list (query-row conn "SELECT type, organization, solicitation, telescope FROM proposals ORDER BY id DESC LIMIT 1")))
 
 ; add a new proposal to the database
 (define (addnew conn)
