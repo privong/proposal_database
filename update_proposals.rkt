@@ -4,6 +4,7 @@
 
 (require racket/cmdline
          racket/date
+         racket/list
          db
          "config.rkt") ; load configuration file
 
@@ -104,8 +105,10 @@
       [else (map getinput input-fields)]))
 
   ; do the INSERT into the Sqlite database
-  (query-exec conn "INSERT INTO proposals (type, organization, solicitation, telescope, title, PI, CoI, submitdate, orgpropID, status) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-              (append propinfo status)))
+  (let* ([add-proposal-info
+           (prepare conn "INSERT INTO proposals (type, organization, solicitation, telescope, title, PI, CoI, submitdate, orgpropID, status) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")])
+         (query-exec conn (bind-prepared-statement add-proposal-info
+                                                   (flatten (list propinfo status))))))
 
 ; update an entry with new status (accepted, rejected, etc.)
 (define (update conn ID)
