@@ -21,7 +21,7 @@ PI TEXT NOT NULL,
 title TEXT NOT NULL,
 CoI TEXT NOT NULL,
 status TEXT NOT NULL,
-submitteddate TEXT NOT NULL,
+submitdate TEXT NOT NULL,
 resultdate TEXT DEFAULT '')")
   (disconnect conn)
   (write-string (string-append "Database created at " dbloc "\n")))
