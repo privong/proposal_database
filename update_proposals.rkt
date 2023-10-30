@@ -77,7 +77,7 @@
               "\"")))
 
 (define (get-last-proposal-call conn)
-  (println "Adopting proposal information from last submission")
+  (displayln "Adopting proposal information from last submission")
   (last-proposal-call conn))
 
 ; get information from the most recent proposal submission
