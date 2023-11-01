@@ -197,7 +197,9 @@
   (display (string-append (number->string (length props))))
   (if issub
       (displayln " pending proposals found.")
-      (displayln " resolved proposals found."))
+      (cond
+        [isaccept (displayln " accepted proposals found.")]
+        [isrej (displayln " rejected proposals found.")]))
   (newline)
   ; print all the unresolved proposals to the screen
   (map (lambda (prop)
