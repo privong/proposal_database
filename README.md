@@ -3,8 +3,8 @@
 Tools to create and manipulate a sqlite3 database with information on telescope and funding proposals.
 
 Before using, copy `config.rkt.example` to `config.rkt` and edit it with your desired database location and, optionally, your last name.
-Then run `racket create_database.rkt` to create the sqlite3 file and create the `proposals` table.
-Run `racket update_proposals.rkt help` for information on how to add/update entries.
+Then run `racket proposal_database.rkt create-database` to create the sqlite3 file and create the `proposals` table.
+Run `racket proposal_database.rkt help` for information on how to add/update entries.
 
 ## Requirements
 

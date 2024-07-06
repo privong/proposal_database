@@ -41,6 +41,7 @@
                             progname " MODE"))
   (newline)
   (displayln "Where MODE is one of:")
+  (displayln " create-database - initialize the proposal database.")
   (displayln " add\t\t - add new proposal to database.")
   (displayln " update\t\t - update a proposal with results.")
   (displayln " stats\t\t - print summary statistics.")
@@ -50,7 +51,7 @@
   (displayln " list-rejected\t - Show rejected proposals.")
   (displayln " help\t\t - Show this help message.")
   (newline)
-  (displayln "Copyright 2019-2020, 2022-2023 George C. Privon"))
+  (displayln "Copyright 2019-2020, 2022-2024 George C. Privon"))
 
 ; set up a condensed prompt for getting information
 (define (getinput prompt)
@@ -83,6 +84,37 @@
 ; get information from the most recent proposal submission
 (define (last-proposal-call conn)
   (vector->list (query-row conn "SELECT type, organization, solicitation, telescope FROM proposals ORDER BY id DESC LIMIT 1")))
+
+; create the database and create the table
+(define (createdb dbloc)
+  ; make sure we can use the sqlite3 connection
+  (cond [(not (sqlite3-available?)) (error "Sqlite3 library not available.")])
+
+  ; create the database and add the `proposals` table if it doesn't exist
+  (cond [(file-exists? dbloc) (error "Database exists. Exiting.")])
+  (write-string (string-append "Creating database " dbloc "\n"))
+  (define conn (sqlite3-connect #:database dbloc
+                                #:mode 'create))
+  (query-exec conn "CREATE TABLE proposals (ID INTEGER PRIMARY KEY,
+type TEXT NOT NULL,
+organization TEXT NOT NULL,
+solicitation TEXT NOT NULL,
+telescope TEXT DEFAULT '',
+orgpropID TEXT NOT NULL,
+PI TEXT NOT NULL,
+title TEXT NOT NULL,
+CoI TEXT NOT NULL,
+status TEXT NOT NULL,
+submitdate TEXT NOT NULL,
+resultdate TEXT DEFAULT '')")
+  (disconnect conn)
+  (write-string (string-append "Database created at " dbloc "\n")))
+
+; check to see if we can access the database
+(define (checkdb conn)
+  (cond [(connected? conn) (write-string "Database created successfully.")]
+        [else (write-string "Could not connect to database.")]))
+
 
 ; add a new proposal to the database
 (define (addnew conn)
@@ -294,7 +326,10 @@
 
 ; catch-all routine for when we need to access the database
 (define (querysys mode)
-  ; first see if we need write access or if we can use read only
+  ; check if the user would like to create the database or not
+  (cond
+    [(regexp-match "create-database" mode) (createdb dbloc)])
+  ; see if we need write access or if we can use read only
   (define dbmode (if (or (regexp-match "add" mode)
                          (regexp-match "update" mode))
                      'read/write
@@ -304,6 +339,7 @@
                                 #:mode dbmode))
   ; now handle the user's request
   (cond
+    [(regexp-match "create-database" mode) (checkdb conn)]
     [(regexp-match "add" mode) (addnew conn)]
     [(regexp-match "update" mode) (findpending conn)]
     [(regexp-match "stats" mode) (proposal-stats conn)]
