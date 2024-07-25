@@ -35,7 +35,7 @@
  [("-r" "--reuse-parameters") "Reuse/auto-fill proposal type, submitting organization, solicitation/call and telescope name from the most recently added proposal."
                               (reuse-params #t)]
  #:once-any
- [("create-database") "Create a new database" (mode "create-database")]
+ [("--create-database") "Create a new database" (mode "create-database")]
  [("-a" "--add") "Add a new proposal" (mode "add")]
  [("-u" "--update") "Update a proposal outcome" (mode "update")]
  [("--stats") "Calculate and display summary statistics" (mode "stats")]
