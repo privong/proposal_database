@@ -8,6 +8,7 @@
 - Add `--reuse-parameters`/`-r` for `add`. This will auto-fill the proposal type, submiting organzation, solicitation, and telescope from the most recent submission.
 - bugfix in database creation
 - combine creation and update scripts into a single file/tool
+- Modes are now specified as switches rather than as a free-form string. This change enables a more coherent/consistent method of parsing the arguments and getting program argument help (i.e., with `--help`)
 
 ## v0.2.x
 

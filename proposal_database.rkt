@@ -21,37 +21,31 @@
 ; if #t, use proposal type, submitting organiation, solicitation/call, and
 ; telescope name from the most recently submitted (i.e., highest ID) proposal
 (define reuse-params (make-parameter #f))
+; Set up the mode as a parameter to be provided by command line switches
+(define mode (make-parameter #f))
 
 ; set up command line arguments
-(define mode (command-line
-              #:program "proposal_database"
-              #:once-each
-              [("-s" "--start-date") sd "Start of date range (YYYY-MM-DD)"
-                                     (start-date sd)]
-              [("-e" "--end-date") ed "End of date range (YYYY-MM-DD)"
-                                   (end-date ed)]
-              [("-r" "--reuse-parameters") "Reuse/auto-fill proposal type, submitting organization, solicitation/call and telescope name from the most recently added proposal."
-                                           (reuse-params #t)]
-              #:args ([updatetype "help"]) ; (add, update, list-open, list-closed, help)
-              updatetype))
+(command-line
+ #:program progname
+ #:once-each
+ [("-s" "--start-date") sd "Start of date range (YYYY-MM-DD)"
+                        (start-date sd)]
+ [("-e" "--end-date") ed "End of date range (YYYY-MM-DD)"
+                      (end-date ed)]
+ [("-r" "--reuse-parameters") "Reuse/auto-fill proposal type, submitting organization, solicitation/call and telescope name from the most recently added proposal."
+                              (reuse-params #t)]
+ #:once-any
+ [("-c" "--create-database") "Create a new database" (mode "create-database")]
+ [("-a" "--add") "Add a new proposal" (mode "add")]
+ [("-u" "--update") "Update a proposal outcome" (mode "update")]
+ [("-s" "--stats") "Calculate and display summary statistics" (mode "stats")]
+ [("-o" "--list-open") "Show all submitted (but not resolved) proposals" (mode "list-open")]
+ [("-c" "--list-closed") "Show all resolved (accepted and rejected) proposals" (mode "list-closed")]
+ [("--list-accepted") "Show accepted proposals" (mode "list-accepted")]
+ [("-r" "--list-rejected") "Show rejected proposals" (mode "list-rejected")]
+ #:ps "Copyright 2019-2020, 2022-2024 George Privon"
 
-; print some help
-(define (printhelp)
-  (displayln (string-append "Usage: "
-                            progname " MODE"))
-  (newline)
-  (displayln "Where MODE is one of:")
-  (displayln " create-database - initialize the proposal database.")
-  (displayln " add\t\t - add new proposal to database.")
-  (displayln " update\t\t - update a proposal with results.")
-  (displayln " stats\t\t - print summary statistics.")
-  (displayln " list-open\t - Show all submitted (but not resolved) proposals.")
-  (displayln " list-closed\t - Show all resolved (accepted and rejected) proposals.")
-  (displayln " list-accepted\t - Show accepted proposals.")
-  (displayln " list-rejected\t - Show rejected proposals.")
-  (displayln " help\t\t - Show this help message.")
-  (newline)
-  (displayln "Copyright 2019-2020, 2022-2024 George C. Privon"))
+ )
 
 ; set up a condensed prompt for getting information
 (define (getinput prompt)
@@ -353,9 +347,5 @@ resultdate TEXT DEFAULT '')")
   (disconnect conn))
 
 
-; First see if the user wants help or if we need to pass to one of the other
-; procedures
-(cond
-  [(regexp-match "help" mode) (printhelp)]
-  [else (querysys mode)])
+(querysys (mode))
 
