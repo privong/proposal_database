@@ -8,7 +8,7 @@
          db
          "config.rkt") ; load configuration file
 
-(define progname "update_proposals.rkt")
+(define progname "proposal_database.rkt")
 
 
 ; give us the date in YYYY-MM-DD format
@@ -24,7 +24,7 @@
 
 ; set up command line arguments
 (define mode (command-line
-              #:program "update_proposals"
+              #:program "proposal_database"
               #:once-each
               [("-s" "--start-date") sd "Start of date range (YYYY-MM-DD)"
                                      (start-date sd)]
