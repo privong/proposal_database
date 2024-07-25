@@ -42,7 +42,7 @@
  [("-o" "--list-open") "Show all submitted (but not resolved) proposals" (mode "list-open")]
  [("-c" "--list-closed") "Show all resolved (accepted and rejected) proposals" (mode "list-closed")]
  [("--list-accepted") "Show accepted proposals" (mode "list-accepted")]
- [("-r" "--list-rejected") "Show rejected proposals" (mode "list-rejected")]
+ [("--list-rejected") "Show rejected proposals" (mode "list-rejected")]
  #:ps "Copyright 2019-2020, 2022-2024 George Privon"
 
  )
