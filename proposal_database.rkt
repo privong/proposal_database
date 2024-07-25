@@ -35,17 +35,15 @@
  [("-r" "--reuse-parameters") "Reuse/auto-fill proposal type, submitting organization, solicitation/call and telescope name from the most recently added proposal."
                               (reuse-params #t)]
  #:once-any
- [("-c" "--create-database") "Create a new database" (mode "create-database")]
+ [("create-database") "Create a new database" (mode "create-database")]
  [("-a" "--add") "Add a new proposal" (mode "add")]
  [("-u" "--update") "Update a proposal outcome" (mode "update")]
- [("-s" "--stats") "Calculate and display summary statistics" (mode "stats")]
- [("-o" "--list-open") "Show all submitted (but not resolved) proposals" (mode "list-open")]
+ [("--stats") "Calculate and display summary statistics" (mode "stats")]
+ [("--list-open") "Show all submitted (but not resolved) proposals" (mode "list-open")]
  [("--list-closed") "Show all resolved (accepted and rejected) proposals" (mode "list-closed")]
  [("--list-accepted") "Show accepted proposals" (mode "list-accepted")]
  [("--list-rejected") "Show rejected proposals" (mode "list-rejected")]
- #:ps "Copyright 2019-2020, 2022-2024 George Privon"
-
- )
+ #:ps "Copyright 2019-2020, 2022-2024 George Privon")
 
 ; set up a condensed prompt for getting information
 (define (getinput prompt)
