@@ -40,7 +40,7 @@
  [("-u" "--update") "Update a proposal outcome" (mode "update")]
  [("-s" "--stats") "Calculate and display summary statistics" (mode "stats")]
  [("-o" "--list-open") "Show all submitted (but not resolved) proposals" (mode "list-open")]
- [("-c" "--list-closed") "Show all resolved (accepted and rejected) proposals" (mode "list-closed")]
+ [("--list-closed") "Show all resolved (accepted and rejected) proposals" (mode "list-closed")]
  [("--list-accepted") "Show accepted proposals" (mode "list-accepted")]
  [("--list-rejected") "Show rejected proposals" (mode "list-rejected")]
  #:ps "Copyright 2019-2020, 2022-2024 George Privon"
