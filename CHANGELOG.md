@@ -9,6 +9,7 @@
 - bugfix in database creation
 - combine creation and update scripts into a single file/tool
 - Modes are now specified as switches rather than as a free-form string. This change enables a more coherent/consistent method of parsing the arguments and getting program argument help (i.e., with `--help`)
+- Add `--list-open-calls` to show call information for unresolved (i.e., "submitted") proposals.
 
 ## v0.2.x
 
