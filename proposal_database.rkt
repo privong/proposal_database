@@ -43,7 +43,8 @@
  [("--list-closed") "Show all resolved (accepted and rejected) proposals" (mode "list-closed")]
  [("--list-accepted") "Show accepted proposals" (mode "list-accepted")]
  [("--list-rejected") "Show rejected proposals" (mode "list-rejected")]
- #:ps "Copyright 2019-2020, 2022-2024 George Privon")
+ [("--list-open-calls") "Show calls that have submitted (but not resolved) proposals" (mode "list-open-calls")]
+ #:ps "Copyright 2019-2020, 2022-2025 George Privon")
 
 ; set up a condensed prompt for getting information
 (define (getinput prompt)
@@ -51,7 +52,7 @@
   (write-string ": ")
   (read-line))
 
-; take an input result from the SQL search and write it out nicely
+; take a proposal result from the SQL search and write it out nicely
 (define (printentry entry issub)
   (displayln (string-append
               (number->string (vector-ref entry 0))
@@ -68,6 +69,16 @@
               ") \""
               (vector-ref entry 3)
               "\"")))
+
+; take a call result from the SQL search and write it out nicely
+(define (print-call-entry entry)
+  (displayln (string-append
+              (vector-ref entry 1)
+              " "
+              (vector-ref entry 2)
+              " ("
+              (vector-ref entry 0)
+              ")")))
 
 (define (get-last-proposal-call conn)
   (displayln "Adopting proposal information from last submission")
@@ -230,6 +241,17 @@ resultdate TEXT DEFAULT '')")
          (printentry prop issub))
        props))
 
+; retrieve and print proposal calls
+(define (print-open-calls conn)
+  (define call-entries (query-rows conn (string-append "SELECT DISTINCT organization,telescope,solicitation FROM proposals WHERE status='submitted'")))
+  (display (string-append (number->string (length call-entries))))
+  (displayln " pending calls found.")
+  (newline)
+  ; print all the unresolved proposals to the screen
+  (map (lambda (call-entry)
+         (print-call-entry call-entry))
+       call-entries))
+
 ; find proposals waiting for updates
 (define (findpending conn)
   (write-string "Updating proposals. ")
@@ -335,6 +357,7 @@ resultdate TEXT DEFAULT '')")
     [(regexp-match "add" mode) (addnew conn)]
     [(regexp-match "update" mode) (findpending conn)]
     [(regexp-match "stats" mode) (proposal-stats conn)]
+    [(regexp-match "list-open-calls" mode) (print-open-calls conn)]
     [(regexp-match "list-open" mode) (printprop conn #:submitted #t)]
     [(regexp-match "list-closed" mode) (printprop conn #:submitted #f)]
     [(regexp-match "list-accepted" mode) (printprop conn #:submitted #f #:accepted #t)]
