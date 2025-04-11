@@ -342,10 +342,10 @@ resultdate TEXT DEFAULT '')")
 (define (querysys mode)
   ; check if the user would like to create the database or not
   (cond
-    [(regexp-match "create-database" mode) (createdb dbloc)])
+    [(string=? "create-database" mode) (createdb dbloc)])
   ; see if we need write access or if we can use read only
-  (define dbmode (if (or (regexp-match "add" mode)
-                         (regexp-match "update" mode))
+  (define dbmode (if (or (string=? "add" mode)
+                         (string=? "update" mode))
                      'read/write
                      'read-only))
   ; open the database with the specified mode
@@ -353,15 +353,15 @@ resultdate TEXT DEFAULT '')")
                                 #:mode dbmode))
   ; now handle the user's request
   (cond
-    [(regexp-match "create-database" mode) (checkdb conn)]
-    [(regexp-match "add" mode) (addnew conn)]
-    [(regexp-match "update" mode) (findpending conn)]
-    [(regexp-match "stats" mode) (proposal-stats conn)]
-    [(regexp-match "list-open-calls" mode) (print-open-calls conn)]
-    [(regexp-match "list-open" mode) (printprop conn #:submitted #t)]
-    [(regexp-match "list-closed" mode) (printprop conn #:submitted #f)]
-    [(regexp-match "list-accepted" mode) (printprop conn #:submitted #f #:accepted #t)]
-    [(regexp-match "list-rejected" mode) (printprop conn #:submitted #f #:rejected #t)]
+    [(string=? "create-database" mode) (checkdb conn)]
+    [(string=? "add" mode) (addnew conn)]
+    [(string=? "update" mode) (findpending conn)]
+    [(string=? "stats" mode) (proposal-stats conn)]
+    [(string=? "list-open-calls" mode) (print-open-calls conn)]
+    [(string=? "list-open" mode) (printprop conn #:submitted #t)]
+    [(string=? "list-closed" mode) (printprop conn #:submitted #f)]
+    [(string=? "list-accepted" mode) (printprop conn #:submitted #f #:accepted #t)]
+    [(string=? "list-rejected" mode) (printprop conn #:submitted #f #:rejected #t)]
     [else (error (string-append "Unknown mode. Try " progname " help\n\n"))])
 
   ; close the databse
