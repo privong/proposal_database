@@ -338,17 +338,17 @@ resultdate TEXT DEFAULT '')")
                                        extrasel)))
   (values
    ; total number of proposals
-   (length (query-rows conn
-                       (string-append "SELECT ID FROM proposals"
-                                      mysel-one)))
+   (query-value conn
+                (string-append "SELECT COUNT(DISTINCT ID) FROM proposals"
+                               mysel-one))
    ; Number of pending proposals
-   (length (query-rows conn
-                       (string-append "SELECT ID FROM proposals WHERE status='submitted'"
-                                      mysel)))
+   (query-value conn
+                (string-append "SELECT COUNT(DISTINCT ID) FROM proposals WHERE status='submitted'"
+                               mysel))
    ; Number of rejected proposals
-   (length (query-rows conn
-                       (string-append "SELECT ID FROM proposals WHERE status LIKE '%rejected%'"
-                                      mysel)))))
+   (query-value conn
+                (string-append "SELECT COUNT(DISTINCT ID) FROM proposals WHERE status LIKE '%rejected%'"
+                               mysel))))
 
 ; make sure we can use the sqlite3 connection
 (define checkdblib
