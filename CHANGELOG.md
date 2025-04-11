@@ -10,6 +10,7 @@
 - combine creation and update scripts into a single file/tool
 - Modes are now specified as switches rather than as a free-form string. This change enables a more coherent/consistent method of parsing the arguments and getting program argument help (i.e., with `--help`)
 - Add `--list-open-calls` to show call information for unresolved (i.e., "submitted") proposals. This shows the number of proposals pending for each call, separated into PI'ed and Co-I'ed proposals.
+- Print fractions of proposals (in `--stats`) as decimals rather than exact fractions.
 - Various internal refactoring for simplicity and off-loading of work to SQLite engine.
 
 ## v0.2.x

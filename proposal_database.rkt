@@ -5,6 +5,7 @@
 (require racket/cmdline
          racket/date
          racket/list
+         racket/format
          db
          "config.rkt") ; load configuration file
 
@@ -315,13 +316,15 @@ resultdate TEXT DEFAULT '')")
   (define Naccepted (- Nprop Npending Nrejected))
   (display (number->string Naccepted))
   (display "\tproposals accepted (f=")
-  (display (number->string (/ Naccepted
-                              (- Nprop Npending))))
+  (display (~r (/ Naccepted
+                  (- Nprop Npending))
+               #:precision `(= 3)))
   (displayln " of resolved proposals).")
   (display (number->string Nrejected))
   (display "\tproposals rejected (f=")
-  (display (number->string (/ Nrejected
-                              (- Nprop Npending))))
+  (display (~r (/ Nrejected
+                  (- Nprop Npending))
+               #:precision `(= 3)))
   (displayln " of resolved proposals)."))
 
 
