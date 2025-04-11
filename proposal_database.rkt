@@ -5,6 +5,7 @@
 (require racket/cmdline
          racket/date
          racket/list
+         racket/format
          db
          "config.rkt") ; load configuration file
 
@@ -71,14 +72,18 @@
               "\"")))
 
 ; take a call result from the SQL search and write it out nicely
-(define (print-call-entry entry)
+(define (print-call-entry entry Nprop)
   (displayln (string-append
               (vector-ref entry 1)
               " "
               (vector-ref entry 2)
               " ("
               (vector-ref entry 0)
-              ")")))
+              ") - "
+              (~s Nprop)
+              (cond [(> Nprop 1) " proposals "]
+                    [else " proposal "])
+              "pending.")))
 
 (define (get-last-proposal-call conn)
   (displayln "Adopting proposal information from last submission")
@@ -249,7 +254,11 @@ resultdate TEXT DEFAULT '')")
   (newline)
   ; print all the unresolved proposals to the screen
   (map (lambda (call-entry)
-         (print-call-entry call-entry))
+         (define Nprop
+           (query-value conn (string-append "SELECT COUNT(DISTINCT ID) from proposals WHERE status='submitted' AND solicitation='"
+                                            (vector-ref call-entry 2)
+                                            "'")))
+         (print-call-entry call-entry Nprop))
        call-entries))
 
 ; find proposals waiting for updates
