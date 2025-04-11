@@ -72,7 +72,7 @@
               "\"")))
 
 ; take a call result from the SQL search and write it out nicely
-(define (print-call-entry entry Nprop)
+(define (print-call-entry entry Nprop Nprop-PI)
   (displayln (string-append
               (vector-ref entry 1)
               " "
@@ -80,9 +80,12 @@
               " ("
               (vector-ref entry 0)
               ") - "
-              (~s Nprop)
-              (cond [(> Nprop 1) " proposals "]
-                    [else " proposal "])
+              (~s Nprop-PI)
+              (cond [(> Nprop-PI 1) " PI proposals and "]
+                    [else " PI proposal and "])
+              (~s (- Nprop Nprop-PI))
+              (cond [(> Nprop 1) " Co-I proposals "]
+                    [else " Co-I proposal "])
               "pending.")))
 
 (define (get-last-proposal-call conn)
@@ -254,11 +257,16 @@ resultdate TEXT DEFAULT '')")
   (newline)
   ; print all the unresolved proposals to the screen
   (map (lambda (call-entry)
-         (define Nprop
-           (query-value conn (string-append "SELECT COUNT(DISTINCT ID) from proposals WHERE status='submitted' AND solicitation='"
+         (define Nprop (query-value conn (string-append "SELECT COUNT(DISTINCT ID) from proposals WHERE status='submitted' AND solicitation='"
                                             (vector-ref call-entry 2)
                                             "'")))
-         (print-call-entry call-entry Nprop))
+         (define Nprop-PI
+           (query-value conn (string-append "SELECT COUNT(DISTINCT ID) from proposals WHERE status='submitted' AND solicitation='"
+                                            (vector-ref call-entry 2)
+                                            "' AND PI LIKE '%"
+                                            PIname
+                                            "%'")))
+         (print-call-entry call-entry Nprop Nprop-PI))
        call-entries))
 
 ; find proposals waiting for updates
