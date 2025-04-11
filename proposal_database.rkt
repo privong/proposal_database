@@ -5,7 +5,6 @@
 (require racket/cmdline
          racket/date
          racket/list
-         racket/format
          db
          "config.rkt") ; load configuration file
 
@@ -80,10 +79,10 @@
               " ("
               (vector-ref entry 0)
               ") - "
-              (~s Nprop-PI)
+              (number->string Nprop-PI)
               (cond [(> Nprop-PI 1) " PI proposals and "]
                     [else " PI proposal and "])
-              (~s (- Nprop Nprop-PI))
+              (number->string (- Nprop Nprop-PI))
               (cond [(> Nprop 1) " Co-I proposals "]
                     [else " Co-I proposal "])
               "pending.")))
