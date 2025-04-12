@@ -158,9 +158,9 @@ resultdate TEXT DEFAULT '')")
 
   ; do the INSERT into the Sqlite database
   (let* ([add-proposal-info
-           (prepare conn "INSERT INTO proposals (type, organization, solicitation, telescope, title, PI, CoI, submitdate, orgpropID, status) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")])
-         (query-exec conn (bind-prepared-statement add-proposal-info
-                                                   (flatten (list propinfo status))))))
+          (prepare conn "INSERT INTO proposals (type, organization, solicitation, telescope, title, PI, CoI, submitdate, orgpropID, status) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")])
+    (query-exec conn (bind-prepared-statement add-proposal-info
+                                              (flatten (list propinfo status))))))
 
 ; update an entry with new status (accepted, rejected, etc.)
 (define (update conn ID)
@@ -192,8 +192,8 @@ resultdate TEXT DEFAULT '')")
 ; were resolved.
 (define (date-for-selection submitted)
   (if submitted
-    "submitdate"
-    "resultdate"))
+      "submitdate"
+      "resultdate"))
 
 ; retrieve and print proposals based on status
 (define (printprop conn
@@ -214,35 +214,35 @@ resultdate TEXT DEFAULT '')")
                          "")))
   ; generate a selection clause if the user requested a restricted range
   (define dateclause (string-append
-                       (if (or (start-date) (end-date))
-                         " AND "
-                         "")
-                       (if (start-date)
-                         (string-append
+                      (if (or (start-date) (end-date))
+                          " AND "
+                          "")
+                      (if (start-date)
+                          (string-append
                            " DATE("
                            (date-for-selection issub)
                            ") >= DATE('"
                            (start-date)
                            "') ")
-                         "")
-                       (if (and (start-date) (end-date))
-                         " AND "
-                         "")
-                       (if (end-date)
-                         (string-append
+                          "")
+                      (if (and (start-date) (end-date))
+                          " AND "
+                          "")
+                      (if (end-date)
+                          (string-append
                            " DATE("
                            (date-for-selection issub)
                            ") <= DATE('"
                            (end-date)
                            "') ")
-                         "")))
+                          "")))
   (define props (query-rows conn (string-append "SELECT ID,telescope,solicitation,title,PI,status FROM proposals WHERE "
                                                 selclause
                                                 dateclause)))
   (display (string-append (number->string (length props))
                           (cond [issub " pending "]
                                 [isaccept " accepted "]
-                                 [isrej " rejected "])
+                                [isrej " rejected "])
                           (proposal-plurals (length props))
                           " found."))
   (newline)
@@ -260,8 +260,8 @@ resultdate TEXT DEFAULT '')")
   ; print all the unresolved proposals to the screen
   (map (lambda (call-entry)
          (define Nprop (query-value conn (string-append "SELECT COUNT(DISTINCT ID) from proposals WHERE status='submitted' AND solicitation='"
-                                            (vector-ref call-entry 2)
-                                            "'")))
+                                                        (vector-ref call-entry 2)
+                                                        "'")))
          (define Nprop-PI
            (query-value conn (string-append "SELECT COUNT(DISTINCT ID) from proposals WHERE status='submitted' AND solicitation='"
                                             (vector-ref call-entry 2)
@@ -305,7 +305,7 @@ resultdate TEXT DEFAULT '')")
                                                                                       "%'"))])
     (print-stats Nprop Npending Nrejected))
 
-)
+  )
 
 ; given numbers, format somewhat pretty output of proposal statistics
 (define (print-stats Nprop Npending Nrejected)
@@ -323,21 +323,21 @@ resultdate TEXT DEFAULT '')")
                             " pending)."))
   (define Naccepted (- Nprop Npending Nrejected))
   (displayln (string-append (number->string Naccepted)
-                             "\t"
-                             (proposal-plurals Naccepted)
-                             " accepted (f="
-                             (~r (/ Naccepted
-                                    (- Nprop Npending))
-                                 #:precision `(= 3))
-                             " of resolved proposals)."))
+                            "\t"
+                            (proposal-plurals Naccepted)
+                            " accepted (f="
+                            (~r (/ Naccepted
+                                   (- Nprop Npending))
+                                #:precision `(= 3))
+                            " of resolved proposals)."))
   (displayln (string-append (number->string Nrejected)
-                             "\t"
-                             (proposal-plurals Nrejected)
-                             " accepted (f="
-                             (~r (/ Nrejected
-                                    (- Nprop Npending))
-                                 #:precision `(= 3))
-                             " of resolved proposals).")))
+                            "\t"
+                            (proposal-plurals Nrejected)
+                            " accepted (f="
+                            (~r (/ Nrejected
+                                   (- Nprop Npending))
+                                #:precision `(= 3))
+                            " of resolved proposals).")))
 
 
 ; retrieve proposal numbers from the database, for statistics
