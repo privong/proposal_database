@@ -212,7 +212,7 @@ resultdate TEXT DEFAULT '')")
       "resultdate"))
 
 ; generate a SQL date clause selection
-(define (dateclause start-date end-date issub)
+(define (dateclause issub)
   (string-append
    (if (or (start-date) (end-date))
        " AND "
@@ -257,7 +257,7 @@ resultdate TEXT DEFAULT '')")
   ; generate a selection clause if the user requested a restricted range
   (define props (query-rows conn (string-append "SELECT ID,telescope,solicitation,title,PI,status FROM proposals WHERE "
                                                 selclause
-                                                (dateclause start-date end-date issub))))
+                                                (dateclause issub))))
   (display (string-append (number->string (length props))
                           (cond [issub " pending "]
                                 [isaccept " accepted "]
