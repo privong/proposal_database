@@ -77,6 +77,8 @@
 
 ; take a call result from the SQL search and write it out nicely
 (define (print-call-entry entry Nprop Nprop-PI)
+  (define have-PI (> Nprop-PI 0))
+  (define have-CoI (> (- Nprop Nprop-PI) 0))
   (displayln (string-append
               (vector-ref entry 1)
               " "
@@ -84,11 +86,20 @@
               " ("
               (vector-ref entry 0)
               ") - "
-              (number->string Nprop-PI)
-              (proposal-plurals Nprop-PI)
-              (number->string (- Nprop Nprop-PI))
-              (proposal-plurals Nprop)
-              "pending.")))
+              (if have-PI
+                  (string-append  (number->string Nprop-PI)
+                                  " PI "
+                                  (proposal-plurals Nprop-PI))
+                  "")
+              (if (and have-PI have-CoI)
+                  ", "
+                  "")
+              (if have-CoI
+                  (string-append (number->string (- Nprop Nprop-PI))
+                                 " CoI "
+                                 (proposal-plurals Nprop))
+                  "")
+              " pending.")))
 
 (define (get-last-proposal-call conn)
   (displayln "Adopting proposal information from last submission")
