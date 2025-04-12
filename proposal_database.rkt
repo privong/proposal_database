@@ -320,6 +320,7 @@ resultdate TEXT DEFAULT '')")
 
 ; given numbers, format somewhat pretty output of proposal statistics
 (define (print-stats Nprop Npending Nrejected)
+  ; total proposal stats
   (displayln (string-append (number->string Nprop)
                             "\ttotal "
                             (proposal-plurals Nprop)
@@ -332,6 +333,7 @@ resultdate TEXT DEFAULT '')")
                             " "
                             (proposal-plurals Npending)
                             " pending)."))
+  ; statistics on accepted proposals
   (define Naccepted (- Nprop Npending Nrejected))
   (displayln (string-append (number->string Naccepted)
                             "\t"
@@ -341,10 +343,11 @@ resultdate TEXT DEFAULT '')")
                                    (- Nprop Npending))
                                 #:precision `(= 3))
                             " of resolved proposals)."))
+  ; statistcs on other proposals
   (displayln (string-append (number->string Nrejected)
                             "\t"
                             (proposal-plurals Nrejected)
-                            " accepted (f="
+                            " rejected (f="
                             (~r (/ Nrejected
                                    (- Nprop Npending))
                                 #:precision `(= 3))
