@@ -53,6 +53,7 @@
   (write-string ": ")
   (read-line))
 
+; decide whether to use singular or plural "proposal" based on the number of proposals
 (define (proposal-plurals Nprop)
   (cond [(= Nprop 1) "proposal"]
         [else "proposals"]))
@@ -75,7 +76,7 @@
               (vector-ref entry 3)
               "\"")))
 
-; take a call result from the SQL search and write it out nicely
+; take an open proposal call result from the SQL search and write it out nicely
 (define (print-call-entry entry Nprop Nprop-PI)
   (define have-PI (> Nprop-PI 0))
   (define have-CoI (> (- Nprop Nprop-PI) 0))
@@ -153,10 +154,9 @@ resultdate TEXT DEFAULT '')")
                              "CoIs"
                              "Submit date (YYYY-MM-DD)"
                              "Organization's propsal ID"))
-  (displayln "Adding new proposal to database.")
   ; assume all these proposals are submitted, don't ask the user
   (define status "submitted")
-
+  (displayln "Adding new proposal to database.")
   ; get the proposal information
   (define propinfo
     (cond
@@ -168,8 +168,8 @@ resultdate TEXT DEFAULT '')")
       [else (map getinput input-fields)]))
 
   ; do the INSERT into the Sqlite database
-  (let* ([add-proposal-info
-          (prepare conn "INSERT INTO proposals (type, organization, solicitation, telescope, title, PI, CoI, submitdate, orgpropID, status) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")])
+  (let ([add-proposal-info
+         (prepare conn "INSERT INTO proposals (type, organization, solicitation, telescope, title, PI, CoI, submitdate, orgpropID, status) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")])
     (query-exec conn (bind-prepared-statement add-proposal-info
                                               (flatten (list propinfo status))))))
 
