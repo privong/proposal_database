@@ -25,6 +25,11 @@
 ; Set up the mode as a parameter to be provided by command line switches
 (define mode (make-parameter #f))
 
+; set up an error handler
+(define (error-handler msg)
+  (error (string-append "Error: ")
+         msg))
+
 ; set up command line arguments
 (command-line
  #:program progname
@@ -113,10 +118,10 @@
 ; create the database and create the table
 (define (createdb dbloc)
   ; make sure we can use the sqlite3 connection
-  (cond [(not (sqlite3-available?)) (error "Sqlite3 library not available.")])
+  (cond [(not (sqlite3-available?)) (error-handler "Sqlite3 library not available.")])
 
   ; create the database and add the `proposals` table if it doesn't exist
-  (cond [(file-exists? dbloc) (error "Database exists. Exiting.")])
+  (cond [(file-exists? dbloc) (error-handler "Database exists. Exiting.")])
   (write-string (string-append "Creating database " dbloc "\n"))
   (define conn (sqlite3-connect #:database dbloc
                                 #:mode 'create))
@@ -178,7 +183,7 @@ resultdate TEXT DEFAULT '')")
   (displayln (string-append "Updating entry " (number->string ID)))
   (define entry (query-maybe-row conn "SELECT * FROM proposals WHERE ID=?" ID))
   (cond
-    [(eq? #f entry) (error "Invalid ID. Row not found")])
+    [(eq? #f entry) (error-handler "Invalid ID. Row not found")])
   (displayln (string-append "Current status is: "
                             (vector-ref entry 9)
                             " ("
@@ -381,7 +386,7 @@ resultdate TEXT DEFAULT '')")
 ; make sure we can use the sqlite3 connection
 (define checkdblib
   (cond (not (sqlite3-available?))
-        (error "Sqlite3 library not available.")))
+        (error-handler "Sqlite3 library not available.")))
 
 ; catch-all routine for when we need to access the database
 (define (querysys mode)
@@ -407,7 +412,7 @@ resultdate TEXT DEFAULT '')")
     [(string=? "list-closed" mode) (printprop conn #:submitted #f)]
     [(string=? "list-accepted" mode) (printprop conn #:submitted #f #:accepted #t)]
     [(string=? "list-rejected" mode) (printprop conn #:submitted #f #:rejected #t)]
-    [else (error (string-append "Unknown mode. Try " progname " help\n\n"))])
+    [else (error-handler (string-append "Unknown mode. Try " progname " help\n\n"))])
 
   ; close the databse
   (disconnect conn))
