@@ -53,6 +53,10 @@
   (write-string ": ")
   (read-line))
 
+(define (proposal-plurals Nprop)
+  (cond [(= Nprop 1) "proposal"]
+        [else "proposals"]))
+
 ; take a proposal result from the SQL search and write it out nicely
 (define (printentry entry issub)
   (displayln (string-append
@@ -81,11 +85,9 @@
               (vector-ref entry 0)
               ") - "
               (number->string Nprop-PI)
-              (cond [(> Nprop-PI 1) " PI proposals and "]
-                    [else " PI proposal and "])
+              (proposal-plurals Nprop-PI)
               (number->string (- Nprop Nprop-PI))
-              (cond [(> Nprop 1) " Co-I proposals "]
-                    [else " Co-I proposal "])
+              (proposal-plurals Nprop)
               "pending.")))
 
 (define (get-last-proposal-call conn)
@@ -237,12 +239,12 @@ resultdate TEXT DEFAULT '')")
   (define props (query-rows conn (string-append "SELECT ID,telescope,solicitation,title,PI,status FROM proposals WHERE "
                                                 selclause
                                                 dateclause)))
-  (display (string-append (number->string (length props))))
-  (if issub
-      (displayln " pending proposals found.")
-      (cond
-        [isaccept (displayln " accepted proposals found.")]
-        [isrej (displayln " rejected proposals found.")]))
+  (display (string-append (number->string (length props))
+                          (cond [issub " pending "]
+                                [isaccept " accepted "]
+                                 [isrej " rejected "])
+                          (proposal-plurals (length props))
+                          " found."))
   (newline)
   ; print all the unresolved proposals to the screen
   (map (lambda (prop)
@@ -252,8 +254,8 @@ resultdate TEXT DEFAULT '')")
 ; retrieve and print proposal calls
 (define (print-open-calls conn)
   (define call-entries (query-rows conn (string-append "SELECT DISTINCT organization,telescope,solicitation FROM proposals WHERE status='submitted'")))
-  (display (string-append (number->string (length call-entries))))
-  (displayln " pending calls found.")
+  (displayln (string-append (number->string (length call-entries))
+                            " pending calls found."))
   (newline)
   ; print all the unresolved proposals to the screen
   (map (lambda (call-entry)
@@ -307,25 +309,35 @@ resultdate TEXT DEFAULT '')")
 
 ; given numbers, format somewhat pretty output of proposal statistics
 (define (print-stats Nprop Npending Nrejected)
-  (display (number->string Nprop))
-  (display  "\ttotal proposals entered (")
-  (display (number->string (- Nprop Npending)))
-  (display " proposals resolved; ")
-  (display (number->string Npending))
-  (displayln " proposals pending).")
+  (displayln (string-append (number->string Nprop)
+                            "\ttotal "
+                            (proposal-plurals Nprop)
+                            " entered ("
+                            (number->string (- Nprop Npending))
+                            " "
+                            (proposal-plurals (- Nprop Npending))
+                            " resolved; "
+                            (number->string Npending)
+                            " "
+                            (proposal-plurals Npending)
+                            " pending)."))
   (define Naccepted (- Nprop Npending Nrejected))
-  (display (number->string Naccepted))
-  (display "\tproposals accepted (f=")
-  (display (~r (/ Naccepted
-                  (- Nprop Npending))
-               #:precision `(= 3)))
-  (displayln " of resolved proposals).")
-  (display (number->string Nrejected))
-  (display "\tproposals rejected (f=")
-  (display (~r (/ Nrejected
-                  (- Nprop Npending))
-               #:precision `(= 3)))
-  (displayln " of resolved proposals)."))
+  (displayln (string-append (number->string Naccepted)
+                             "\t"
+                             (proposal-plurals Naccepted)
+                             " accepted (f="
+                             (~r (/ Naccepted
+                                    (- Nprop Npending))
+                                 #:precision `(= 3))
+                             " of resolved proposals)."))
+  (displayln (string-append (number->string Nrejected)
+                             "\t"
+                             (proposal-plurals Nrejected)
+                             " accepted (f="
+                             (~r (/ Nrejected
+                                    (- Nprop Npending))
+                                 #:precision `(= 3))
+                             " of resolved proposals).")))
 
 
 ; retrieve proposal numbers from the database, for statistics
