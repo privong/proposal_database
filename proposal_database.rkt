@@ -211,6 +211,32 @@ resultdate TEXT DEFAULT '')")
       "submitdate"
       "resultdate"))
 
+; generate a SQL date clause selection
+(define (dateclause start-date end-date issub)
+  (string-append
+   (if (or (start-date) (end-date))
+       " AND "
+       "")
+   (if (start-date)
+       (string-append
+        " DATE("
+        (date-for-selection issub)
+        ") >= DATE('"
+        (start-date)
+        "') ")
+       "")
+   (if (and (start-date) (end-date))
+       " AND "
+       "")
+   (if (end-date)
+       (string-append
+        " DATE("
+        (date-for-selection issub)
+        ") <= DATE('"
+        (end-date)
+        "') ")
+       "")))
+
 ; retrieve and print proposals based on status
 (define (printprop conn
                    #:submitted issub
@@ -229,32 +255,9 @@ resultdate TEXT DEFAULT '')")
                          " AND status LIKE '%Rejected%'"
                          "")))
   ; generate a selection clause if the user requested a restricted range
-  (define dateclause (string-append
-                      (if (or (start-date) (end-date))
-                          " AND "
-                          "")
-                      (if (start-date)
-                          (string-append
-                           " DATE("
-                           (date-for-selection issub)
-                           ") >= DATE('"
-                           (start-date)
-                           "') ")
-                          "")
-                      (if (and (start-date) (end-date))
-                          " AND "
-                          "")
-                      (if (end-date)
-                          (string-append
-                           " DATE("
-                           (date-for-selection issub)
-                           ") <= DATE('"
-                           (end-date)
-                           "') ")
-                          "")))
   (define props (query-rows conn (string-append "SELECT ID,telescope,solicitation,title,PI,status FROM proposals WHERE "
                                                 selclause
-                                                dateclause)))
+                                                (dateclause start-date end-date issub))))
   (display (string-append (number->string (length props))
                           (cond [issub " pending "]
                                 [isaccept " accepted "]
