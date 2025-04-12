@@ -145,6 +145,8 @@ resultdate TEXT DEFAULT '')")
   (cond [(connected? conn) (write-string "Database created successfully.")]
         [else (write-string "Could not connect to database.")]))
 
+; frequently used SQL statement clauses
+(define get_prop_count_base "SELECT COUNT(DISTINCT ID) FROM proposals ")
 
 ; add a new proposal to the database
 (define (addnew conn)
@@ -278,11 +280,13 @@ resultdate TEXT DEFAULT '')")
   (newline)
   ; print all the unresolved proposals to the screen
   (map (lambda (call-entry)
-         (define Nprop (query-value conn (string-append "SELECT COUNT(DISTINCT ID) from proposals WHERE status='submitted' AND solicitation='"
+         (define Nprop (query-value conn (string-append get_prop_count_base
+                                                        "WHERE status='submitted' AND solicitation='"
                                                         (vector-ref call-entry 2)
                                                         "'")))
          (define Nprop-PI
-           (query-value conn (string-append "SELECT COUNT(DISTINCT ID) from proposals WHERE status='submitted' AND solicitation='"
+           (query-value conn (string-append get_prop_count_base
+                                            "WHERE status='submitted' AND solicitation='"
                                             (vector-ref call-entry 2)
                                             "' AND PI LIKE '%"
                                             PIname
@@ -364,7 +368,6 @@ resultdate TEXT DEFAULT '')")
 
 ; retrieve proposal numbers from the database, for statistics
 (define (get-stats conn #:selclause [extrasel ""])
-  (define get_prop_count_base "SELECT COUNT(DISTINCT ID) FROM proposals ")
   (define mysel (if (eq? 0 (string-length extrasel))
                     ""
                     (string-append " AND "
