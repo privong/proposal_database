@@ -364,6 +364,7 @@ resultdate TEXT DEFAULT '')")
 
 ; retrieve proposal numbers from the database, for statistics
 (define (get-stats conn #:selclause [extrasel ""])
+  (define get_prop_count_base "SELECT COUNT(DISTINCT ID) FROM proposals ")
   (define mysel (if (eq? 0 (string-length extrasel))
                     ""
                     (string-append " AND "
@@ -375,15 +376,17 @@ resultdate TEXT DEFAULT '')")
   (values
    ; total number of proposals
    (query-value conn
-                (string-append "SELECT COUNT(DISTINCT ID) FROM proposals"
+                (string-append get_prop_count_base
                                mysel-one))
    ; Number of pending proposals
    (query-value conn
-                (string-append "SELECT COUNT(DISTINCT ID) FROM proposals WHERE status='submitted'"
+                (string-append get_prop_count_base
+                               "WHERE status='submitted'"
                                mysel))
    ; Number of rejected proposals
    (query-value conn
-                (string-append "SELECT COUNT(DISTINCT ID) FROM proposals WHERE status LIKE '%rejected%'"
+                (string-append get_prop_count_base
+                               "WHERE status LIKE '%rejected%'"
                                mysel))))
 
 ; make sure we can use the sqlite3 connection
