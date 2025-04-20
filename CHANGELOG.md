@@ -4,7 +4,7 @@
 
 ### v0.3.0 (in progress)
 
-- Add option to specify date ranges or limits using `--start-date` and `--end-date`. This only applies to `list-*` command options.
+- Add option to specify date ranges or limits using `--start-date` and `--end-date`. This applies to `list-*` and `stats` command options.
 - Add `--reuse-parameters`/`-r` for `add`. This will auto-fill the proposal type, submiting organzation, solicitation, and telescope from the most recent submission.
 - bugfix in database creation
 - combine creation and update scripts into a single file/tool
