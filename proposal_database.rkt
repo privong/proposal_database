@@ -325,45 +325,45 @@ resultdate TEXT DEFAULT '')")
                             ")"))
   (let-values ([(Nprop Npending Nrejected) (get-stats conn #:selclause (string-append "PI LIKE '%"
                                                                                       PIname
-                                                                                      "%'"))])
-    (print-stats Nprop Npending Nrejected))
-
-  )
+                                                                                      "%'"
+                                                                                      (dateclause #f)))])
+    (print-stats Nprop Npending Nrejected)))
 
 ; given numbers, format somewhat pretty output of proposal statistics
 (define (print-stats Nprop Npending Nrejected)
-  ; total proposal stats
-  (displayln (string-append (number->string Nprop)
-                            "\ttotal "
-                            (proposal-plurals Nprop)
-                            " entered ("
-                            (number->string (- Nprop Npending))
-                            " "
-                            (proposal-plurals (- Nprop Npending))
-                            " resolved; "
-                            (number->string Npending)
-                            " "
-                            (proposal-plurals Npending)
-                            " pending)."))
-  ; statistics on accepted proposals
-  (define Naccepted (- Nprop Npending Nrejected))
-  (displayln (string-append (number->string Naccepted)
-                            "\t"
-                            (proposal-plurals Naccepted)
-                            " accepted (f="
-                            (~r (/ Naccepted
-                                   (- Nprop Npending))
-                                #:precision `(= 3))
-                            " of resolved proposals)."))
-  ; statistcs on other proposals
-  (displayln (string-append (number->string Nrejected)
-                            "\t"
-                            (proposal-plurals Nrejected)
-                            " rejected (f="
-                            (~r (/ Nrejected
-                                   (- Nprop Npending))
-                                #:precision `(= 3))
-                            " of resolved proposals).")))
+  (if (= Nprop 0) (displayln "No proposals found.")
+      ((lambda x ; total proposal stats
+         (displayln (string-append (number->string Nprop)
+                                   "\ttotal "
+                                   (proposal-plurals Nprop)
+                                   " entered ("
+                                   (number->string (- Nprop Npending))
+                                   " "
+                                   (proposal-plurals (- Nprop Npending))
+                                   " resolved; "
+                                   (number->string Npending)
+                                   " "
+                                   (proposal-plurals Npending)
+                                   " pending)."))
+         ; statistics on accepted proposals
+         (define Naccepted (- Nprop Npending Nrejected))
+         (displayln (string-append (number->string Naccepted)
+                                   "\t"
+                                   (proposal-plurals Naccepted)
+                                   " accepted (f="
+                                   (~r (/ Naccepted
+                                          (- Nprop Npending))
+                                       #:precision `(= 3))
+                                   " of resolved proposals)."))
+         ; statistcs on other proposals
+         (displayln (string-append (number->string Nrejected)
+                                   "\t"
+                                   (proposal-plurals Nrejected)
+                                   " rejected (f="
+                                   (~r (/ Nrejected
+                                          (- Nprop Npending))
+                                       #:precision `(= 3))
+                                   " of resolved proposals)."))))))
 
 
 ; retrieve proposal numbers from the database, for statistics
