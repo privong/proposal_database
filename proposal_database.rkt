@@ -9,7 +9,8 @@
          db
          "config.rkt") ; load configuration file
 
-(define progname "proposal_database.rkt")
+(define prog-name "proposal_database.rkt")
+(define prog-version "v0.3.0")
 
 
 ; give us the date in YYYY-MM-DD format
@@ -32,7 +33,7 @@
 
 ; set up command line arguments
 (command-line
- #:program progname
+ #:program prog-name
  #:once-each
  [("-s" "--start-date") sd "Start of date range (YYYY-MM-DD)"
                         (start-date sd)]
@@ -50,13 +51,20 @@
  [("--list-accepted") "Show accepted proposals" (mode "list-accepted")]
  [("--list-rejected") "Show rejected proposals" (mode "list-rejected")]
  [("--list-open-calls") "Show calls that have submitted (but not resolved) proposals" (mode "list-open-calls")]
- #:ps "Copyright 2019-2020, 2022-2025 George Privon")
+ [("-v" "--version") "Print program version information." (mode "version")])
 
 ; set up a condensed prompt for getting information
 (define (getinput prompt)
   (write-string prompt)
   (write-string ": ")
   (read-line))
+
+;priint version information
+(define (print-version)
+  (displayln (string-append prog-name
+                            " ("
+                            prog-version
+                            "). Copyright 2019-2020, 2022-2025 George C. Privon.")))
 
 ; decide whether to use singular or plural "proposal" based on the number of proposals
 (define (proposal-plurals Nprop)
@@ -424,7 +432,8 @@ resultdate TEXT DEFAULT '')")
     [(string=? "list-closed" mode) (printprop conn #:submitted #f)]
     [(string=? "list-accepted" mode) (printprop conn #:submitted #f #:accepted #t)]
     [(string=? "list-rejected" mode) (printprop conn #:submitted #f #:rejected #t)]
-    [else (error-handler (string-append "Unknown mode. Try " progname " help\n\n"))])
+    [(string=? "version" mode) (print-version)]
+    [else (error-handler (string-append "Unknown mode. Try " prog-name " help\n\n"))])
 
   ; close the databse
   (disconnect conn))
