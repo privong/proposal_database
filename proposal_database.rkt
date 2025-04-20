@@ -214,9 +214,10 @@ resultdate TEXT DEFAULT '')")
       "resultdate"))
 
 ; generate a SQL date clause selection
-(define (dateclause issub)
+(define (dateclause issub #:onlyclause [onlyclause #f])
   (string-append
-   (if (or (start-date) (end-date))
+   (if (and (or (start-date) (end-date))
+            (not onlyclause))
        " AND "
        "")
    (if (start-date)
@@ -316,7 +317,8 @@ resultdate TEXT DEFAULT '')")
 
   ; do statistics for all proposals
   (displayln "\tAll proposals")
-  (let-values ([(Nprop Npending Nrejected) (get-stats conn)])
+  (let-values ([(Nprop Npending Nrejected) (get-stats conn
+                                                      #:selclause (dateclause #f #:onlyclause #t))])
     (print-stats Nprop Npending Nrejected))
 
   ; do statistics for proposals as PI
@@ -326,7 +328,7 @@ resultdate TEXT DEFAULT '')")
   (let-values ([(Nprop Npending Nrejected) (get-stats conn #:selclause (string-append "PI LIKE '%"
                                                                                       PIname
                                                                                       "%'"
-                                                                                      (dateclause #f)))])
+                                                                                      (dateclause #f #:onlyclause #f)))])
     (print-stats Nprop Npending Nrejected)))
 
 ; given numbers, format somewhat pretty output of proposal statistics
@@ -376,6 +378,7 @@ resultdate TEXT DEFAULT '')")
                         ""
                         (string-append " WHERE "
                                        extrasel)))
+
   (values
    ; total number of proposals
    (query-value conn
