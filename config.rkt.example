@@ -3,6 +3,8 @@
 (provide dbloc
          PIname)
 
+; Update this to provide the path of the proposals SQLite database file
 (define dbloc "/path/to/database")
 
+; Update this to the PI's family name
 (define PIname "Lastname")

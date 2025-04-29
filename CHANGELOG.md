@@ -2,6 +2,10 @@
 
 ## v0.3.x
 
+### v0.3.1 (in preparation)
+
+- Annotate example configuration file with guidance.
+
 ### v0.3.0 (20 April 2025)
 
 - Add option to specify date ranges or limits using `--start-date` and `--end-date`. This applies to `list-*` and `stats` command options.
