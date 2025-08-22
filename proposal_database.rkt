@@ -10,7 +10,7 @@
          "config.rkt") ; load configuration file
 
 (define prog-name "proposal_database.rkt")
-(define prog-version "v0.3.0")
+(define prog-version "v0.3.1")
 
 
 ; give us the date in YYYY-MM-DD format

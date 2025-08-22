@@ -2,7 +2,7 @@
 
 ## v0.3.x
 
-### v0.3.1 (in preparation)
+### v0.3.1 (21 August 2025)
 
 - Annotate example configuration file with guidance.
 - Bugfix for multi-counting open calls if more than one different telescope was applied for within a given call (e.g., VLA and VLBA were applied for via separation proposals in a single NRAO call).
