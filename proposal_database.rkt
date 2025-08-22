@@ -95,8 +95,6 @@
   (define have-CoI (> (- Nprop Nprop-PI) 0))
   (displayln (string-append
               (vector-ref entry 1)
-              " "
-              (vector-ref entry 2)
               " ("
               (vector-ref entry 0)
               ") - "
@@ -283,7 +281,7 @@ resultdate TEXT DEFAULT '')")
 
 ; retrieve and print proposal calls
 (define (print-open-calls conn)
-  (define call-entries (query-rows conn (string-append "SELECT DISTINCT organization,telescope,solicitation FROM proposals WHERE status='submitted'")))
+  (define call-entries (query-rows conn (string-append "SELECT DISTINCT organization,solicitation FROM proposals WHERE status='submitted'")))
   (displayln (string-append (number->string (length call-entries))
                             " pending calls found."))
   (newline)
@@ -291,12 +289,12 @@ resultdate TEXT DEFAULT '')")
   (map (lambda (call-entry)
          (define Nprop (query-value conn (string-append get_prop_count_base
                                                         "WHERE status='submitted' AND solicitation='"
-                                                        (vector-ref call-entry 2)
+                                                        (vector-ref call-entry 1)
                                                         "'")))
          (define Nprop-PI
            (query-value conn (string-append get_prop_count_base
                                             "WHERE status='submitted' AND solicitation='"
-                                            (vector-ref call-entry 2)
+                                            (vector-ref call-entry 1)
                                             "' AND PI LIKE '%"
                                             PIname
                                             "%'")))
