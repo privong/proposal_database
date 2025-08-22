@@ -270,7 +270,10 @@ resultdate TEXT DEFAULT '')")
   (display (string-append (number->string (length props))
                           (cond [issub " pending "]
                                 [isaccept " accepted "]
-                                [isrej " rejected "])
+                                [isrej " rejected "]
+                                [(and (not issub)
+                                      (not isaccept)
+                                      (not isrej)) " closed "])
                           (proposal-plurals (length props))
                           " found."))
   (newline)
