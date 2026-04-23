@@ -10,7 +10,7 @@
          "config.rkt") ; load configuration file
 
 (define prog-name "proposal_database.rkt")
-(define prog-version "v0.3.1")
+(define prog-version "v0.3.2")
 
 
 ; give us the date in YYYY-MM-DD format
@@ -64,7 +64,7 @@
   (displayln (string-append prog-name
                             " ("
                             prog-version
-                            "). Copyright 2019-2020, 2022-2025 George C. Privon.")))
+                            "). Copyright 2019-2020, 2022-2026 George C. Privon.")))
 
 ; decide whether to use singular or plural "proposal" based on the number of proposals
 (define (proposal-plurals Nprop)
