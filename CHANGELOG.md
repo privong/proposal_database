@@ -2,6 +2,10 @@
 
 ## v0.3.x
 
+### v0.3.2 (in progress)
+
+- Bufix for --list-open-calls to avoid incorrect proposal counts when different organizations have the same solicitation name.
+
 ### v0.3.1 (21 August 2025)
 
 - Annotate example configuration file with guidance.

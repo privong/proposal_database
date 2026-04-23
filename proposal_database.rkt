@@ -293,11 +293,15 @@ resultdate TEXT DEFAULT '')")
          (define Nprop (query-value conn (string-append get_prop_count_base
                                                         "WHERE status='submitted' AND solicitation='"
                                                         (vector-ref call-entry 1)
+                                                        "' AND organization='"
+                                                        (vector-ref call-entry 0)
                                                         "'")))
          (define Nprop-PI
            (query-value conn (string-append get_prop_count_base
                                             "WHERE status='submitted' AND solicitation='"
                                             (vector-ref call-entry 1)
+                                            "' AND organization='"
+                                            (vector-ref call-entry 0)
                                             "' AND PI LIKE '%"
                                             PIname
                                             "%'")))
